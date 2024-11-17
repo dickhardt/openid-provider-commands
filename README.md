@@ -1,2 +1,4 @@
-# openid-lifecycle-commands
-OpenID Lifecycle Commands
+# OpenID Lifecycle Commands
+
+*To be completed.*
+
