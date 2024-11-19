@@ -1,4 +1,4 @@
-# OpenID Lifecycle Commands
+# OpenID Account Commands
 
 *To be completed.*
 
