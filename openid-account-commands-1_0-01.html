@@ -34,7 +34,7 @@
     wcwidth 0.2.13
     weasyprint 61.2
 -->
-<link href="/usr/src/app/tmp/f2150a81-3b86-4f72-adf1-cbfef6cf308d/openid-account-commands-1_0-01.xml" rel="alternate" type="application/rfc+xml">
+<link href="/usr/src/app/tmp/88ab00d0-3707-49d5-a075-61000cf89b4f/openid-account-commands-1_0-01.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
 <style type="text/css">/*
 
@@ -1669,12 +1669,21 @@ of using explicit typing.<a href="#section-4-15" class="pilcrow">¶</a></p>
           <h4 id="name-describe-response">
 <a href="#section-5.1.1" class="section-number selfRef">5.1.1. </a><a href="#name-describe-response" class="section-name selfRef">Describe Response</a>
           </h4>
-<p id="section-5.1.1-1">The RP MAY provide a different response for different OPs, and for different tenants in a multi-tenant OP.<a href="#section-5.1.1-1" class="pilcrow">¶</a></p>
-<blockquote id="section-5.1.1-2">
-            <p id="section-5.1.1-2.1">NOTE<a href="#section-5.1.1-2.1" class="pilcrow">¶</a></p>
-<p id="section-5.1.1-2.2">Build upon dynamic client metadata and require new <code>commands_supported</code>  (or <code>supported_commands</code>)<a href="#section-5.1.1-2.2" class="pilcrow">¶</a></p>
+<p id="section-5.1.1-1">The RP responds with an <code>application/json</code> media type that MUST include:<a href="#section-5.1.1-1" class="pilcrow">¶</a></p>
+<ul class="compact">
+<li class="compact" id="section-5.1.1-2.1">
+              <strong>commands_supported</strong>: a JSON array of commands the RP supports.<a href="#section-5.1.1-2.1" class="pilcrow">¶</a>
+</li>
+            <li class="compact" id="section-5.1.1-2.2">
+              <strong>commands_uri</strong>: the RP URL that will receive OpenID Account Commands from the OP.<a href="#section-5.1.1-2.2" class="pilcrow">¶</a>
+</li>
+          </ul>
+<p id="section-5.1.1-3">The response MAY also include any OAuth Dynamic Client Registration Metadata (IANA reference)<a href="#section-5.1.1-3" class="pilcrow">¶</a></p>
+<p id="section-5.1.1-4">The RP MAY provide a different response for different OPs, and for different tenants in a multi-tenant OP.<a href="#section-5.1.1-4" class="pilcrow">¶</a></p>
+<blockquote id="section-5.1.1-5">
+            <p id="section-5.1.1-5.1">NOTE<a href="#section-5.1.1-5.1" class="pilcrow">¶</a></p>
+<p id="section-5.1.1-5.2">add example response<a href="#section-5.1.1-5.2" class="pilcrow">¶</a></p>
 </blockquote>
-<p id="section-5.1.1-3"><em>To be completed.</em><a href="#section-5.1.1-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1841,6 +1850,12 @@ OPTIONAL.<br>
 RP URL that will receive OpenID Account Commands from the OP.
 This URL MUST use the <code>https</code> scheme
 and MAY contain path, and query parameter components.<a href="#section-8.2-4.1" class="pilcrow">¶</a>
+</li>
+        </ul>
+<p id="section-8.2-5">And it uses this metadata value to indicate the commands supported:<a href="#section-8.2-5" class="pilcrow">¶</a></p>
+<ul class="compact">
+<li class="compact" id="section-8.2-6.1">
+            <strong>commands_supported</strong><a href="#section-8.2-6.1" class="pilcrow">¶</a>
 </li>
         </ul>
 </section>

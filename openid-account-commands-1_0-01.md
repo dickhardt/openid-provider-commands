@@ -256,14 +256,19 @@ The OP sends this command to the RP to learn what commands the RP supports, and 
 
 ### Describe Response
 
-The RP MAY provide a different response for different OPs, and for different tenants in a multi-tenant OP. 
+The RP responds with an `application/json` media type that MUST include:
+
+- **commands_supported**: a JSON array of commands the RP supports.
+- **commands_uri**: the RP URL that will receive OpenID Account Commands from the OP.
+
+The response MAY also include any OAuth Dynamic Client Registration Metadata (IANA reference)
+
+The RP MAY provide a different response for different OPs, and for different tenants in a multi-tenant OP.
+
 
 > NOTE
 >
-> Build upon dynamic client metadata and require new `commands_supported`  (or `supported_commands`)
-
-*To be completed.*
-
+> add example response
 
 
 ## **unauthorize** 
@@ -361,6 +366,10 @@ it uses this metadata value to register the lifecycle commands URI:
   RP URL that will receive OpenID Account Commands from the OP.
   This URL MUST use the `https` scheme
   and MAY contain path, and query parameter components.
+
+  And it uses this metadata value to indicate the commands supported:
+
+- **commands_supported**
 
 # Implementation Considerations
 
