@@ -34,7 +34,7 @@
     wcwidth 0.2.13
     weasyprint 61.2
 -->
-<link href="/usr/src/app/tmp/7dd1591f-e696-441f-a260-a5632789889b/openid-account-commands-1_0-01.xml" rel="alternate" type="application/rfc+xml">
+<link href="/usr/src/app/tmp/bf55ddf0-0f3c-4e87-a97c-b51ab7455b9d/openid-account-commands-1_0-01.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
 <style type="text/css">/*
 
@@ -1499,7 +1499,7 @@ Values that are not understood by the implementation MUST be ignored.<a href="#s
 <p id="section-2-3">The following is a non-normative example of such a command request
 (with most of the Command Token contents omitted for brevity):<a href="#section-2-3" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-2-4">
-<pre>POST /account_commands HTTP/1.1
+<pre>POST /commands HTTP/1.1
 Host: rp.example.org
 Content-Type: application/x-www-form-urlencoded
 
@@ -1640,7 +1640,7 @@ of using explicit typing.<a href="#section-4-15" class="pilcrow">¶</a></p>
 <p id="section-4-16">A non-normative example JWT Claims Set for a Command Token follows:<a href="#section-4-16" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-4-17">
 <pre>{
-  “iss”: “https://server.example.com”,
+  “iss”: “https://op.example.org,
   “sub”: “248289761001”,
   “aud”: “s6BhdRkqt3”,
   “iat”: 1711718400,
@@ -1689,7 +1689,7 @@ How do we separate this metadata of context from RP metadata?<a href="#section-5
 <p id="section-5.1.1-6">Following is a non-normative example of a describe response:<a href="#section-5.1.1-6" class="pilcrow">¶</a></p>
 <div class="lang-json sourcecode" id="section-5.1.1-7">
 <pre>{
-  "commands_uri":"https://app.example.com/commands",
+  "commands_uri":"https://rp.example.org/commands",
   "commands_supported":[
     "describe",
     "unauthorize",
@@ -1698,7 +1698,7 @@ How do we separate this metadata of context from RP metadata?<a href="#section-5
     "delete"
   ],
   "redirect_uris": [
-    "https://app.example.com/response"
+    "https://rp.example.org/response"
   ]
 }
 </pre><a href="#section-5.1.1-7" class="pilcrow">¶</a>

@@ -109,7 +109,7 @@ The following is a non-normative example of such a command request
 (with most of the Command Token contents omitted for brevity):
 
 ```
-POST /account_commands HTTP/1.1
+POST /commands HTTP/1.1
 Host: rp.example.org
 Content-Type: application/x-www-form-urlencoded
 
@@ -236,7 +236,7 @@ A non-normative example JWT Claims Set for a Command Token follows:
 
 ```
 {
-  “iss”: “https://server.example.com”,
+  “iss”: “https://op.example.org,
   “sub”: “248289761001”,
   “aud”: “s6BhdRkqt3”,
   “iat”: 1711718400,
@@ -279,7 +279,7 @@ Following is a non-normative example of a describe response:
 
 ```json
 {
-  "commands_uri":"https://app.example.com/commands",
+  "commands_uri":"https://rp.example.org/commands",
   "commands_supported":[
     "describe",
     "unauthorize",
@@ -288,7 +288,7 @@ Following is a non-normative example of a describe response:
     "delete"
   ],
   "redirect_uris": [
-    "https://app.example.com/response"
+    "https://rp.example.org/response"
   ]
 }
 ```
