@@ -34,7 +34,7 @@
     wcwidth 0.2.13
     weasyprint 61.2
 -->
-<link href="/usr/src/app/tmp/88ab00d0-3707-49d5-a075-61000cf89b4f/openid-account-commands-1_0-01.xml" rel="alternate" type="application/rfc+xml">
+<link href="/usr/src/app/tmp/7dd1591f-e696-441f-a260-a5632789889b/openid-account-commands-1_0-01.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
 <style type="text/css">/*
 
@@ -1232,7 +1232,7 @@ li > p:last-of-type:only-child {
 <dd class="workgroup">OpenID Connect</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-12-10" class="published">10 December 2024</time>
+<time datetime="2024-12-11" class="published">11 December 2024</time>
     </dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
@@ -1682,8 +1682,27 @@ of using explicit typing.<a href="#section-4-15" class="pilcrow">¶</a></p>
 <p id="section-5.1.1-4">The RP MAY provide a different response for different OPs, and for different tenants in a multi-tenant OP.<a href="#section-5.1.1-4" class="pilcrow">¶</a></p>
 <blockquote id="section-5.1.1-5">
             <p id="section-5.1.1-5.1">NOTE<a href="#section-5.1.1-5.1" class="pilcrow">¶</a></p>
-<p id="section-5.1.1-5.2">add example response<a href="#section-5.1.1-5.2" class="pilcrow">¶</a></p>
+<p id="section-5.1.1-5.2">Do we want to include the <code>iss</code> and tenant claim if the response is specific to them?
+How do we separate this metadata of context from RP metadata?<a href="#section-5.1.1-5.2" class="pilcrow">¶</a></p>
+<p id="section-5.1.1-5.3">Do we want to enable to RP to send back a signed JWT to indicate it is a contract and allow non-repudiation?<a href="#section-5.1.1-5.3" class="pilcrow">¶</a></p>
 </blockquote>
+<p id="section-5.1.1-6">Following is a non-normative example of a describe response:<a href="#section-5.1.1-6" class="pilcrow">¶</a></p>
+<div class="lang-json sourcecode" id="section-5.1.1-7">
+<pre>{
+  "commands_uri":"https://app.example.com/commands",
+  "commands_supported":[
+    "describe",
+    "unauthorize",
+    "suspend",
+    "reactivate",
+    "delete"
+  ],
+  "redirect_uris": [
+    "https://app.example.com/response"
+  ]
+}
+</pre><a href="#section-5.1.1-7" class="pilcrow">¶</a>
+</div>
 </section>
 </div>
 </section>

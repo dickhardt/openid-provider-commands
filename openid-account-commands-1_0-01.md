@@ -256,6 +256,7 @@ The OP sends this command to the RP to learn what commands the RP supports, and 
 
 ### Describe Response
 
+
 The RP responds with an `application/json` media type that MUST include:
 
 - **commands_supported**: a JSON array of commands the RP supports.
@@ -265,10 +266,32 @@ The response MAY also include any OAuth Dynamic Client Registration Metadata (IA
 
 The RP MAY provide a different response for different OPs, and for different tenants in a multi-tenant OP.
 
-
 > NOTE
 >
-> add example response
+> Do we want to include the `iss` and tenant claim if the response is specific to them?
+> How do we separate this metadata of context from RP metadata?
+>
+> Do we want to enable to RP to send back a signed JWT to indicate it is a contract and allow non-repudiation?
+>
+
+
+Following is a non-normative example of a describe response:
+
+```json
+{
+  "commands_uri":"https://app.example.com/commands",
+  "commands_supported":[
+    "describe",
+    "unauthorize",
+    "suspend",
+    "reactivate",
+    "delete"
+  ],
+  "redirect_uris": [
+    "https://app.example.com/response"
+  ]
+}
+```
 
 
 ## **unauthorize** 
