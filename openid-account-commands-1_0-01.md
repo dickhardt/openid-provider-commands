@@ -42,7 +42,7 @@ OpenID Connect 1.0 (OIDC) is a widely adopted identity protocol that enables cli
 
 OIDC not only allows an end-user to log in and authorize access to an RP but also facilitates creating an account with the RP. However, account creation is only the beginning of an account's lifecycle. Throughout the lifecycle, various actions may be required to ensure data integrity, security, and regulatory compliance.
 
-For example, many jurisdictions grant end-users the “right to be forgotten,” enabling them to request the deletion of their accounts and associated data. When such requests arise, OPs may need to notify RPs to fully delete the end-user's account and remove all related data, respecting both regulatory obligations and end-user privacy preferences.
+For example, many jurisdictions grant end-users the "right to be forgotten," enabling them to request the deletion of their accounts and associated data. When such requests arise, OPs may need to notify RPs to fully delete the end-user's account and remove all related data, respecting both regulatory obligations and end-user privacy preferences.
 
 In scenarios where malicious activity is detected or suspected, OPs play a vital role in protecting end-users. They may need to instruct RPs to revoke authorization or delete accounts created by malicious actors. This helps contain the impact of unauthorized actions and prevent further misuse of compromised accounts.
 
@@ -110,7 +110,7 @@ The following is a non-normative example of such a command request
 
 ```
 POST /commands HTTP/1.1
-Host: rp.example.org
+Host: rp.example.net
 Content-Type: application/x-www-form-urlencoded
 
 command_token=eyJhbGci ... .eyJpc3Mi ... .T3BlbklE ...
@@ -180,27 +180,24 @@ The following Claims are used within the Command Token:
   REQUIRED.  
   Unique identifier for the token, as specified in Section 9 of {{OpenID.Core}}.
 
-- **http://schemas.openid.net/command**  
+- **command**  
   REQUIRED.  
-  The command for the RP to execute. See [Commands](#commands) for standard values defined in this document. Other specifications may define additional values.
+  A JSON string. The command for the RP to execute. See [Commands](#commands) for standard values defined in this document. Other specifications may define additional values.
 
-> NOTE
->
-> Use "cmd" rather than a URI? 
-
-
-- **tenant identifier**
+- **tenant**
   OPTIONAL.
-  An OP specific claim that identifies the OP tenant. Examples include the **hd** claim from the Google OP, and the **tid** claim from the Microsoft OP.
+  A JSON object containing:
+    - **id** 
+    REQUIRED.
+    A JSON string that is an OP unique identifier for the OP tenant.
 
-> NOTE
->
-> Aligning OPs on a standard tenant identifier does not seem feasible given current deployments.
-
+    - **domain**
+    OPTIONAL
+    A JSON string for a domain name that the OP has verified the tenant controls. The **domain** MUST not used as a persistent identifier for the tenant. The **domain** MAY be used to link tenant data.
 
 - **groups**
   OPTIONAL for the **activate** and **maintain** lifecycle commands.
-  The groups claim as defined in {{SCIM}}
+  The **groups** claim as defined in {{SCIM}}
 
 > NOTE
 >
@@ -232,54 +229,81 @@ with a value of `command+jwt` in the Command Token.
 See [Security Considerations](#security-considerations) for a discussion of the security and interoperability considerations
 of using explicit typing.
 
-A non-normative example JWT Claims Set for a Command Token follows:
+A non-normative example JWT Claims Set for Command Token for an **activate** command follows:
 
-```
+```json
 {
-  “iss”: “https://op.example.org,
-  “sub”: “248289761001”,
-  “aud”: “s6BhdRkqt3”,
-  “iat”: 1711718400,
-  “exp”: 1711722000,
-  “jti”: “bWJq”,
-  “http://schemas.openid.net/command”: “unauthorize”
+  "iss": "https://op.example.org",
+  "sub": "248289761001",
+  "aud": "s6BhdRkqt3",
+  "iat": 1734003000,
+  "exp": 1734003060,
+  "jti": "bWJq",
+  "command": "activate",
+  "tenant": {
+    "id": "73849284748493",
+    "domain": "example.com"
+  },
+  "groups": [
+    {
+      "value": "832764572",
+      "display": "Administrators"
+    },
+    {
+      "value": "983648484",
+      "display": "Staff"
+    }
+  ]
+}
+```
+
+A non-normative example JWT Claims Set for Command Token for an **unauthorize** command follows:
+
+```json
+{
+  "iss": "https://op.example.org",
+  "sub": "248289761001",
+  "aud": "s6BhdRkqt3",
+  "iat": 1734004000,
+  "exp": 1734004060,
+  "jti": "bWJr",
+  "command": "unauthorize",
 }
 ```
 
 # General Commands
 
-The RP MUST support this command. Support for other commands is optional. 
 
 ## **describe**
 
 The OP sends this command to the RP to learn what commands the RP supports, and other metadata about the RP. 
+The RP MUST support this command. Support for other commands is optional. 
 
 ### Describe Response
 
 
 The RP responds with an `application/json` media type that MUST include:
 
+- **iss**: the **iss* value from the command request
 - **commands_supported**: a JSON array of commands the RP supports.
 - **commands_uri**: the RP URL that will receive OpenID Account Commands from the OP.
 
-The response MAY also include any OAuth Dynamic Client Registration Metadata (IANA reference)
+If the command request included the **tenant** claim, then the **tenant** JSON object with the **id** claim MUST be included in the describe response.
+
+The response MAY also include any OAuth Dynamic Client Registration Metadata *TBD [IANA reference]https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#client-metadata)*
 
 The RP MAY provide a different response for different OPs, and for different tenants in a multi-tenant OP.
-
-> NOTE
->
-> Do we want to include the `iss` and tenant claim if the response is specific to them?
-> How do we separate this metadata of context from RP metadata?
->
-> Do we want to enable to RP to send back a signed JWT to indicate it is a contract and allow non-repudiation?
->
 
 
 Following is a non-normative example of a describe response:
 
 ```json
 {
-  "commands_uri":"https://rp.example.org/commands",
+  "iss": "https://op.example.org",
+  "tenant": {
+    "id": "73849284748493"
+  },
+  "commands_uri": "https://rp.example.net/commands",
   "commands_supported":[
     "describe",
     "unauthorize",
@@ -287,8 +311,14 @@ Following is a non-normative example of a describe response:
     "reactivate",
     "delete"
   ],
+  "client_name": "Example RP",
+  "logo_uri": "https://rp.example.net/logo.png",
+  "policy_uri": "https://rp.example.net/privacy-policy.html",
+  "tos_uri": "https://rp.example.net/terms-of-service.html",
+  "jwks_uri": "https://rp.example.net/jwks",
+  "initiate_login_uri": "https://rp.example.net/initiate-login",
   "redirect_uris": [
-    "https://rp.example.org/response"
+    "https://rp.example.net/response"
   ]
 }
 ```
@@ -301,6 +331,51 @@ This OP sends this command when it suspects a previous OpenID Connect ID Token i
 # Lifecycle Commands
 
 Lifecycle commands are defined for each transition defined in ISO 24760-1 (2019-05 edition), Section 7.2 for accounts in an RP's identity register as defined in {{ISO}} 3.4.5.
+
+The commands transition the account between the following states:
+
+- **Unknown**
+
+- **Active**
+
+- **Suspended**
+
+- **Archived**
+
+Following are the potential state transitions:
+
+```
+                      +--------------------------------------- reactivate ---+                   
+                      |  +--- maintain --+                                   |
+                      |  |               |                                   |
++---------+           |  |   +--------+  |                    +-----------+  |
+|         |           |  +-> |        | -+                    |           | -+ 
+| Unknown |           + ---> | Active | -------- suspend ---> | Suspended | --------+
+|         | --- activate --> |        | ----+                 |           | -+      |
++---------+              +-> |        | -+  |                 +-----------+  |      |
+  ^  ^  ^                |   +--------+  |  |                                |      |
+  |  |  |                |               |  |            +------- archive ---+      | 
+  |  |  |                |               |  |            |                          |
+  |  |  |                |               |  |            |     +-----------+        |
+  |  |  |                |               |  |            +---> |           | ----+  | 
+  |  |  |                |               |  +--- archive ----> | Archived  | -+  |  |            
+  |  |  |                |               |                     |           |  |  |  |
+  |  |  |                |               |                     +-----------+  |  |  |
+  |  |  |                |               |                                    |  |  |
+  |  |  |                +---------------|----------------------- restore ----+  |  | 
+  |  |  |                                |                                       |  |   
+  |  |  +--------------------- delete ---+                                       |  |
+  |  +------------------------ delete -------------------------------------------+  | 
+  +--------------------------- delete ----------------------------------------------+
+```                                             
+
+> AUTHOR NOTE
+>
+> All lifecycle commands return the current state of the account. Either the new state is transitioned, or 
+> the current state if the command is not valid for the current state.
+>
+> TODO - figure how to weave that into current command response section
+
 
 ## **activate** 
 Create an account with the included claims in the identity register. 
@@ -322,6 +397,7 @@ Restore an archived account to the identity register and mark it as being active
 
 ## **delete** 
 Perform the `unauthorize` command on the account, and then delete all data associated with an account.
+
 
 
 # Error Responses
@@ -350,11 +426,18 @@ Applies to:
 *restore
 *delete
 
+
+RETURN CURRENT STATE IF WRONG STATE FOR COMMAND
+
 commands.
 
 ## **unsupported_command**
 
 The RP does not support the command requested. The RP may support commands for some OPs, and not others, and for some OP tenants, and not others.
+
+## **invalid_state**
+
+returns **current_state** 
 
 # OpenID Account Command Support
 
