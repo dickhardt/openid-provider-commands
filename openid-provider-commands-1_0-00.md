@@ -1,9 +1,9 @@
 %%%
-title = "OpenID Account Commands - draft 01"
-abbrev = "openid-account-commands"
+title = "OpenID Provider Commands - draft 00"
+abbrev = "openid-provider-commands"
 ipr = "none"
 workgroup = "OpenID Connect"
-keyword = ["security", "openid", "lifecycle", "accounts"]
+keyword = ["security", "openid", "lifecycle"]
 
 [seriesInfo]
 name = "Internet-Draft"
@@ -32,7 +32,7 @@ organization="Independent"
 
 OpenID Connect defines a protocol for an end-user to use an OpenID Provider (OP) to log in to a Relying Party (RP), assert claims about the end-user using an ID Token, and create an account at the RP with those claims.
 
-OpenID Account Commands complements OpenID Connect by introducing a set of commands for an OP to directly manage an end-user account at an RP. These commands enable an OP to activate, maintain, suspend, reactivate, archive, restore, delete, and unauthorize an end-user account. Command tokens simplify RP adoption by re-use of the OpenID Connect ID Token schema, security, and verification mechanisms.
+OpenID Provider Commands complements OpenID Connect by introducing a set of commands for an OP to directly manage an end-user account at an RP. These commands enable an OP to activate, maintain, suspend, reactivate, archive, restore, delete, and unauthorize an end-user account. Command tokens simplify RP adoption by re-use of the OpenID Connect ID Token schema, security, and verification mechanisms.
 
 {mainmatter}
 
@@ -48,11 +48,15 @@ In scenarios where malicious activity is detected or suspected, OPs play a vital
 
 In enterprise environments, where organizations centrally manage workforce access, OPs handle essential account operations across various stages of the lifecycle. These operations include activating, maintaining, suspending, reactivating, archiving, restoring, and deleting accounts to maintain security and compliance.
 
-OpenID Account Commands enable OPs to manage these account lifecycle stages directly with RPs, extending the functionality of OIDC to cover the full spectrum of account management needs.
+OpenID Provider Commands enable OPs to manage these account lifecycle stages directly with RPs, extending the functionality of OIDC to cover the full spectrum of account management needs.
 
 > NOTE
 >
-> A design objective is to allow the OP to perform key account management with a mechanism that is easy to adopt by the RP. This specification builds upon the ID Token signing mechanism that an RP already supports. No additional credentials are required to be configured or managed by with either the OP or RP. An RP can support only a subset of commands, and the OP can discovery which ones a given RP supports. OpenID Account Commands do not require any changes to deployed protocol endpoints.
+> A design objective is to allow the OP to perform key account management with a mechanism that is easy to adopt by the RP. This specification builds upon the ID Token signing mechanism that an RP already supports. No additional credentials are required to be configured or managed by either the OP or RP. An RP can support only a subset of commands, and the OP can discovery which ones a given RP supports. OpenID Provider Commands do not require any changes to deployed protocol endpoints.
+>
+> The schema of a Command Token is defined by the OP, in contrast to SCIM where the schema is defined by the service provider, AKA RP. 
+>
+
 
 ## Requirements Notation and Conventions
 
@@ -184,16 +188,16 @@ The following Claims are used within the Command Token:
   REQUIRED.  
   A JSON string. The command for the RP to execute. See [Commands](#commands) for standard values defined in this document. Other specifications may define additional values.
 
-- **tenant**
+- **org**
   OPTIONAL.
-  A JSON object containing:
+  The organization the user belongs to, typically a tenant of the OP. It is a JSON object containing:
     - **id** 
     REQUIRED.
-    A JSON string that is an OP unique identifier for the OP tenant.
+    A JSON string that is an OP unique identifier for the organization.
 
     - **domain**
     OPTIONAL
-    A JSON string for a domain name that the OP has verified the tenant controls. The **domain** MUST not used as a persistent identifier for the tenant. The **domain** MAY be used to link tenant data.
+    A JSON string for a domain name that the OP has verified the organization controls. The **domain** MUST not used as a persistent identifier for the organization. The **domain** MAY be used to link organization data.
 
 - **groups**
   OPTIONAL for the **activate** and **maintain** lifecycle commands.
@@ -240,7 +244,7 @@ A non-normative example JWT Claims Set for Command Token for an **activate** com
   "exp": 1734003060,
   "jti": "bWJq",
   "command": "activate",
-  "tenant": {
+  "org": {
     "id": "73849284748493",
     "domain": "example.com"
   },
@@ -286,13 +290,13 @@ The RP responds with an `application/json` media type that MUST include:
 
 - **iss**: the **iss* value from the command request
 - **commands_supported**: a JSON array of commands the RP supports.
-- **commands_uri**: the RP URL that will receive OpenID Account Commands from the OP.
+- **commands_uri**: the RP URL that will receive OpenID Provider Commands from the OP.
 
-If the command request included the **tenant** claim, then the **tenant** JSON object with the **id** claim MUST be included in the describe response.
+If the command request included the **org** claim, then the **org** JSON object with the **id** claim MUST be included in the describe response.
 
 The response MAY also include any OAuth Dynamic Client Registration Metadata *TBD [IANA reference]https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#client-metadata)*
 
-The RP MAY provide a different response for different OPs, and for different tenants in a multi-tenant OP.
+The RP MAY provide a different response for different OPs, and for different organizations in a multi-tenant OP that operates for multiple organizations.
 
 
 Following is a non-normative example of a describe response:
@@ -300,7 +304,7 @@ Following is a non-normative example of a describe response:
 ```json
 {
   "iss": "https://op.example.org",
-  "tenant": {
+  "org": {
     "id": "73849284748493"
   },
   "commands_uri": "https://rp.example.net/commands",
@@ -433,13 +437,13 @@ commands.
 
 ## **unsupported_command**
 
-The RP does not support the command requested. The RP may support commands for some OPs, and not others, and for some OP tenants, and not others.
+The RP does not support the command requested. The RP may support commands for some OPs, and not others, and for some organizations, and not others.
 
 ## **invalid_state**
 
 returns **current_state** 
 
-# OpenID Account Command Support
+# OpenID Provider Command Support
 
 ## Indicating OP Support
 
@@ -449,7 +453,7 @@ it uses this metadata value to advertise its support for lifecycle commands:
 
 - **commands_supported**  
   OPTIONAL.  
-  A JSON array containing the OpenID Account Commands that the OP supports.
+  A JSON array containing the OpenID Provider Commands that the OP supports.
 
 ## Indicating RP Support
 
@@ -469,7 +473,7 @@ it uses this metadata value to register the lifecycle commands URI:
 
 - **commands_uri**  
   OPTIONAL.  
-  RP URL that will receive OpenID Account Commands from the OP.
+  RP URL that will receive OpenID Provider Commands from the OP.
   This URL MUST use the `https` scheme
   and MAY contain path, and query parameter components.
 
@@ -480,12 +484,12 @@ it uses this metadata value to register the lifecycle commands URI:
 # Implementation Considerations
 
 This specification defines features used by both Relying Parties and
-OpenID Providers that choose to implement OpenID Account Commands.
+OpenID Providers that choose to implement OpenID Provider Commands.
 All of these Relying Parties and OpenID Providers
 MUST implement the features that are listed
 in this specification as being "REQUIRED" or are described with a "MUST".
 No other implementation considerations for implementations of
-Account Commands are defined by this specification.
+OpenID Provider Commands are defined by this specification.
 
 # Security Considerations
 
@@ -495,7 +499,7 @@ the command request is coming from a legitimate party.
 
 OPs are encouraged to use short expiration times in Command Tokens,
 preferably at most two minutes in the future,
-to prevent captured Command Tokens from being replayable.
+to prevent captured Command Tokens from being replayed.
 
 
 ## Cross-JWT Confusion
@@ -548,7 +552,7 @@ established by [RFC8414]{{RFC8414}}.
 - **Metadata Name:** `commands_supported`
 
   **Metadata Description:**
-  JSON array containing the OpenID Account Commands that the OP supports.
+  JSON array containing the OpenID Provider Commands that the OP supports.
 
   **Change Controller:** OpenID Foundation
 
@@ -566,7 +570,7 @@ established by [RFC7591](#RFC7591).
 - **Client Metadata Name:** `commands_uri`
   
 **Client Metadata Description:**
-  RP URL that will receive OpenID Account Commands from the OP
+  RP URL that will receive OpenID Provider Commands from the OP
 
 **Change Controller:** OpenID Foundation
 
