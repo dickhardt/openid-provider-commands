@@ -1,4 +1,4 @@
-# OpenID Account Commands
+# OpenID Provider Commands
 
 *To be completed.*
 
