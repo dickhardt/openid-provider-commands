@@ -54,8 +54,8 @@ OpenID Provider Commands enable OPs to manage these account lifecycle stages dir
 >
 > A design objective is to allow the OP to perform key account management with a mechanism that is easy to adopt by the RP. This specification builds upon the ID Token signing mechanism that an RP already supports. No additional credentials are required to be configured or managed by either the OP or RP. An RP can support only a subset of commands, and the OP can discovery which ones a given RP supports. OpenID Provider Commands do not require any changes to deployed protocol endpoints.
 >
-> The schema of a Command Token is defined by the OP, in contrast to SCIM where the schema is defined by the service provider, AKA RP. 
->
+> The schema of a Command Token is defined by this specification, and any extension is defined by the OP, in contrast to SCIM where the user and group schemas are defined by the service provider, AKA RP. 
+> This aligns with how schema for how an OpenID Connect ID Token is defined.
 
 
 ## Requirements Notation and Conventions
@@ -201,11 +201,18 @@ The following Claims are used within the Command Token:
 
 - **groups**
   OPTIONAL for the **activate** and **maintain** lifecycle commands.
-  The **groups** claim as defined in {{SCIM}}
+  The **groups** claim is a JSON array of zero or more JSON objects that each contain:
+    - **id** 
+    REQUIRED. 
+    A JSON string that is an OP unique identifier for the organization.
+
+    - **display** 
+    REQUIRES.
+    A JSON string that is an OP unique human readable string representing the group.
 
 > NOTE
 >
-> the **$ref** claim in SCIM **group** claim does not make sense for commands as groups are not an independent resource. Do we specific groups in this context to just be the **value** and **display** 
+> The **groups** claim is registered at IANA, but the properties are not. To enable interop, this document defines the contants of the groups claim.
 
 
 
@@ -250,11 +257,11 @@ A non-normative example JWT Claims Set for Command Token for an **activate** com
   },
   "groups": [
     {
-      "value": "832764572",
+      "id": "832764572",
       "display": "Administrators"
     },
     {
-      "value": "983648484",
+      "id": "983648484",
       "display": "Staff"
     }
   ]
