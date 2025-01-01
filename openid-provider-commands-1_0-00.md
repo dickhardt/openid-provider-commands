@@ -50,12 +50,12 @@ In enterprise environments, where organizations centrally manage workforce acces
 
 OpenID Provider Commands enable OPs to manage these account lifecycle stages directly with RPs, extending the functionality of OIDC to cover the full spectrum of account management needs.
 
-> NOTE
+> Author NOTE
+> 
+> The target implementors of this specification are RPs that have implemented, or will implement OpenID Connect. Reusing the OpenID Connect ID Token 
+> syntax, semantics, and verification simplifies implementation of this specification. Reusing token verification removes any requirement to manage or configure additional credentials by either the OP or RP.
 >
-> A design objective is to allow the OP to perform key account management with a mechanism that is easy to adopt by the RP. This specification builds upon the ID Token signing mechanism that an RP already supports. No additional credentials are required to be configured or managed by either the OP or RP. An RP can support only a subset of commands, and the OP can discovery which ones a given RP supports. OpenID Provider Commands do not require any changes to deployed protocol endpoints.
->
-> The schema of a Command Token is defined by this specification, and any extension is defined by the OP, in contrast to SCIM where the user and group schemas are defined by the service provider, AKA RP. 
-> This aligns with how schema for how an OpenID Connect ID Token is defined.
+> The schema of a Command Token is defined by this specification, and any extensions are defined by the OP, aligning with how an ID Token schema is defined. This is in contrast to SCIM where the group schema and user schema extensions are defined by the service provider, AKA RP. 
 
 
 ## Requirements Notation and Conventions
@@ -74,19 +74,17 @@ the use of *this fixed-width font*.
 
 ## Terminology
 
-This specification defines the following term:
+This specification defines the following terms:
 
-- **Account**: *To be completed.*
+- **Command**: An instruction from an OP to an RP.
 
-- **Command**: *To be completed.*
+- **Command Token**: A JSON Web Token (JWT) signed by the OP that contains Claims about the Command being issued.
 
-- **Command Token**: A JSON Web Token (JWT) similar to an ID Token that contains Claims about the command being issued.
-
-- **Commands URI**: *To be completed.*
+- **Commands URI**: The URL at the RP where OPs post Command Tokens.
 
 ## Overview
 
-This specification defines a Command Request sent from the OP to the RP, and a Command Response returned from the RP to the OP. The Command Request is an HTTP POST with a `application/x-www-form-urlencoded` encoded body containing a signed, and optionally encrypted JWT, the Command Token. The Command Response is an HTTP status code and potentially an `application/json` encoded response.
+This specification defines a Command Request containing a Command Token sent from the OP to the RP, and a Command Response returned from the RP to the OP.
 
 ```
 +------+  Command Request       +------+
@@ -127,21 +125,6 @@ However, note that some Web frameworks will substitute an HTTP 204 No Content re
 for an HTTP 200 OK when the HTTP body is empty.
 Therefore, OPs should be prepared to also process an HTTP 204 No Content response as a successful response.
 
-If the command request was invalid or the command failed,
-the RP MUST respond with HTTP 400 Bad Request.
-The response MAY include an HTTP body consisting of a JSON object with
-`error` and `error_description` parameters
-conveying the nature of the error that occurred, which can assist with debugging.
-These error response parameters are used as specified in Section 5.2 of {{!RFC6749}}.
-Like in OAuth 2.0, the parameters are included in the entity-body of the HTTP response
-using the `application/json` media type.
-Also like in OAuth 2.0, the `error` parameter is REQUIRED when a response body is present
-and the `error_description` parameter is OPTIONAL.
-An `error` value of `invalid_request`
-MAY be used to indicate that there was a problem with the syntax of the command request.
-Note that the information conveyed in the response body is intended to help debug deployments;
-it is not intended that implementations use different `error` values
-to trigger different runtime behaviors.
 
 The RP's response SHOULD include the Cache-Control HTTP response header field with a no-store value, keeping the response from being cached to prevent cached responses from interfering with future command requests. An example of this is:
 
@@ -149,6 +132,27 @@ The RP's response SHOULD include the Cache-Control HTTP response header field wi
 Cache-Control: no-store
 ```
 
+If there is a response body, it MUST by JSON and use the `application/json` media type.
+
+If the request is not valid, the RP MUST return an `error` parameter, and may include a `error_description` parameter. 
+Note that the information conveyed in an error response is intended to help debug deployments;
+it is not intended that implementations use different `error` values
+to trigger different runtime behaviors.
+
+
+## Invalid Request Error
+
+If there was a problem with the syntax of the command request, or the Command Token was invalid, the RP MUST return an HTTP 400 Bad Request and include the `error` parameter with a value of `invalid_request`. 
+
+## Unsupported Command Error
+
+If the RP does not support the command requested, the RP MUST return an HTTP 400 Bad Request and include the `error` parameter with the value of `unsupported_command`.
+
+Note that the RP may support commands for some OPs, and not others, and for some organizations, and not others.
+
+## Server Error
+
+If the RP is unable to process a valid request, the RP MUST respond with a Server Error status code as defined in RFC 9110 section 15.6.
 
 # Command Token
 
@@ -162,8 +166,10 @@ The following Claims are used within the Command Token:
   Issuer Identifier, as specified in Section 2 of {{OpenID.Core}}.
 
 - **sub**  
-  REQUIRED except for **describe** command. 
-  PROHIBITED for the **describe** command. 
+  REQUIRED except for **describe** and **groups** command. 
+
+  PROHIBITED for the **describe** and **groups** command. 
+
   Subject Identifier, as specified in Section 2 of {{OpenID.Core}}. 
   
   The combination of the `iss` and `sub` claim uniquely identifies the account for the command.
@@ -193,27 +199,29 @@ The following Claims are used within the Command Token:
   The organization the user belongs to, typically a tenant of the OP. It is a JSON object containing:
     - **id** 
     REQUIRED.
-    A JSON string that is an OP unique identifier for the organization.
+    A JSON string that is an OP specific, globally unique identifier for the organization.
 
     - **domain**
     OPTIONAL
-    A JSON string for a domain name that the OP has verified the organization controls. The **domain** MUST not used as a persistent identifier for the organization. The **domain** MAY be used to link organization data.
+    A JSON string for a domain name that the OP has verified the organization controls. The **domain** MUST not be used as a persistent identifier for the organization. The **domain** MAY be used to link organization data.
 
 - **groups**
   OPTIONAL for the **activate** and **maintain** lifecycle commands.
   The **groups** claim is a JSON array of zero or more JSON objects that each contain:
     - **id** 
     REQUIRED. 
-    A JSON string that is an OP unique identifier for the organization.
+    A JSON string that is an OP specific, globally unique identifier for the group.
 
     - **display** 
     REQUIRES.
-    A JSON string that is an OP unique human readable string representing the group.
+    A JSON string that is an OP unique human readable string representing the group. The **display** MUST not be used as a persistent identifier for the group.
 
-> NOTE
+> Author NOTE
 >
-> The **groups** claim is registered at IANA, but the properties are not. To enable interop, this document defines the contants of the groups claim.
-
+> The **groups** claim is registered in [IANA JSON Web Token Claims](https://www.iana.org/assignments/jwt/jwt.xhtml), which refers to [RFC 7643 4.1.2](https://www.rfc-editor.org/rfc/rfc7643.html#section-4.1.2) and [RFC 9068 2.2.3.1](https://www.rfc-editor.org/rfc/rfc9068.html#name-claims-for-authorization-ou)
+> Besides defining that it is a list, none of the specifications define the properties of a group. To enable interop, this document defines the contents of the groups claim.
+>
+> Both **org.id** and **groups[].id** are defined as being a globally unique identifier rather than being OP unique to allow an RP to use them as an index. They are not defined as UUIDs, but that is an acceptable format. Is this a step too far? Should it just be OP unique?
 
 
 The following Claim MUST NOT be used within the Command Token:
@@ -252,16 +260,16 @@ A non-normative example JWT Claims Set for Command Token for an **activate** com
   "jti": "bWJq",
   "command": "activate",
   "org": {
-    "id": "73849284748493",
+    "id": "ff6e7c96-7309-4f96-8a3b-39a8c12337b0",
     "domain": "example.com"
   },
   "groups": [
     {
-      "id": "832764572",
+      "id": "b0f4861d-f3d6-4f76-be2f-e467daddc6f6",
       "display": "Administrators"
     },
     {
-      "id": "983648484",
+      "id": "88799417-c72f-48fc-9e63-f012d8822ad1",
       "display": "Staff"
     }
   ]
@@ -282,31 +290,47 @@ A non-normative example JWT Claims Set for Command Token for an **unauthorize** 
 }
 ```
 
+
 # General Commands
 
+The RP MUST support the **describe** command. Support for other general commands is OPTIONAL. 
 
-## **describe**
+
+## **describe** Command
 
 The OP sends this command to the RP to learn what commands the RP supports, and other metadata about the RP. 
-The RP MUST support this command. Support for other commands is optional. 
 
-### Describe Response
+Following is a non-normative example of a *describe* Command Token payload:
+
+```json
+{
+  "iss": "https://op.example.org",
+  "aud": "s6BhdRkqt3",
+  "iat": 1734002000,
+  "exp": 1734002060,
+  "jti": "bWJp",
+  "command": "describe",
+  "org": {
+    "id": "73849284748493"
+  },
+```
 
 
-The RP responds with an `application/json` media type that MUST include:
+### **describe** Response
 
-- **iss**: the **iss* value from the command request
-- **commands_supported**: a JSON array of commands the RP supports.
-- **commands_uri**: the RP URL that will receive OpenID Provider Commands from the OP.
+If the Command Token is valid, the RP responds with an `application/json` media type that MUST include:
 
-If the command request included the **org** claim, then the **org** JSON object with the **id** claim MUST be included in the describe response.
+- **iss**: the **iss* value from the Command Token.
+- **commands_supported**: a JSON array of commands the RP supports. The **describe** value MUST be included.
+- **commands_uri**: the RPs Commands URI. This is the URL the Command Token was sent to.
+
+If the Command Token included the **org** claim, then the **org** JSON object with the **id** claim MUST be included in the response.
 
 The response MAY also include any OAuth Dynamic Client Registration Metadata *TBD [IANA reference]https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#client-metadata)*
 
-The RP MAY provide a different response for different OPs, and for different organizations in a multi-tenant OP that operates for multiple organizations.
+The RP MAY provide a different response for different **iss** claim values, and for different **org** claim values.
 
-
-Following is a non-normative example of a describe response:
+Following is a non-normative example of a **describe** response to the example request payload in {{describe-command}}:
 
 ```json
 {
@@ -334,24 +358,62 @@ Following is a non-normative example of a describe response:
 }
 ```
 
+## **groups** Command
+The OP sends this command to inform the OP of the **groups** claims the OP may include in ID and Command Tokens. 
 
-## **unauthorize** 
-This OP sends this command when it suspects a previous OpenID Connect ID Token issued by the OP was granted to a malicious actor. The RP MUST revoke all active sessions and MUST reverse all authorization that may have been granted to applications, including `offline_access`, for account resources identified by the **sub**.
+The **groups** claim is REQUIRED.
+The **org** claim is OPTIONAL and indicates the **groups** are specific to the **org**.
+
+A **groups** command overrides any previous **groups** command.
+
+Following is a non-normative example of a **groups** Command Token payload:
+
+```json
+{
+  "iss": "https://op.example.org",
+  "aud": "s6BhdRkqt3",
+  "iat": 1734006000,
+  "exp": 1734006060,
+  "jti": "bWJt",
+  "command": "groups",
+  "org": {
+    "id": "ff6e7c96-7309-4f96-8a3b-39a8c12337b0",
+    "domain": "example.com"
+  },
+  "groups": [
+    {
+      "id": "b0f4861d-f3d6-4f76-be2f-e467daddc6f6",
+      "display": "Administrators"
+    },
+    {
+      "id": "88799417-c72f-48fc-9e63-f012d8822ad1",
+      "display": "Staff"
+    }
+  ]
+}
+```
+
+## **unauthorize** Command
+The OP sends this command when it suspects a previous OpenID Connect ID Token issued by the OP was granted to a malicious actor. The RP MUST revoke all active sessions and MUST reverse all authorization that may have been granted to applications, including `offline_access`, for account resources identified by the **sub**.
 
 
 # Lifecycle Commands
 
+Support for lifecycle commands is OPTIONAL. 
+
 Lifecycle commands are defined for each transition defined in ISO 24760-1 (2019-05 edition), Section 7.2 for accounts in an RP's identity register as defined in {{ISO}} 3.4.5.
+
+## Lifecycle States
 
 The commands transition the account between the following states:
 
-- **Unknown**
+- **unknown**
 
-- **Active**
+- **active**
 
-- **Suspended**
+- **suspended**
 
-- **Archived**
+- **archived**
 
 Following are the potential state transitions:
 
@@ -361,7 +423,7 @@ Following are the potential state transitions:
                       |  |               |                                   |
 +---------+           |  |   +--------+  |                    +-----------+  |
 |         |           |  +-> |        | -+                    |           | -+ 
-| Unknown |           + ---> | Active | -------- suspend ---> | Suspended | --------+
+| unknown |           + ---> | active | -------- suspend ---> | suspended | --------+
 |         | --- activate --> |        | ----+                 |           | -+      |
 +---------+              +-> |        | -+  |                 +-----------+  |      |
   ^  ^  ^                |   +--------+  |  |                                |      |
@@ -369,7 +431,7 @@ Following are the potential state transitions:
   |  |  |                |               |  |            |                          |
   |  |  |                |               |  |            |     +-----------+        |
   |  |  |                |               |  |            +---> |           | ----+  | 
-  |  |  |                |               |  +--- archive ----> | Archived  | -+  |  |            
+  |  |  |                |               |  +--- archive ----> | archived  | -+  |  |            
   |  |  |                |               |                     |           |  |  |  |
   |  |  |                |               |                     +-----------+  |  |  |
   |  |  |                |               |                                    |  |  |
@@ -380,75 +442,54 @@ Following are the potential state transitions:
   +--------------------------- delete ----------------------------------------------+
 ```                                             
 
-> AUTHOR NOTE
->
-> All lifecycle commands return the current state of the account. Either the new state is transitioned, or 
-> the current state if the command is not valid for the current state.
->
-> TODO - figure how to weave that into current command response section
 
+## Lifecycle Command Responses
 
-## **activate** 
-Create an account with the included claims in the identity register. 
+When an RP successful processes a lifecycle command, the RP returns an HTTP 200 Ok and a JSON object containing **current_state** set the state of the account after processing. 
 
-## **maintain** 
-Update an existing account in the identity register with the included claims.
+Following is a non-normative response to a successful **activate** command:
 
-## **suspend** 
-Perform the `unauthorize` command on the account and then mark the account as being temporarily unavailable in the identity register.
+```json
+{
+  "current_state": "active"
+}
+```
 
-## **reactivate**
-Mark a suspended account as being active in the identity register.
+If the account is in an incompatible state in the identity register for the lifecycle command, the RP returns an HTTP 409 Conflict and a JSON object containing:
 
-## **archive** 
-Perform the `unauthorize` command on the account and remove the account from the identity register. 
+- **current_state** where the value is the current state of the account in the identity register
+- **error** set to the value "incompatible_state"
 
-## **restore** 
-Restore an archived account to the identity register and mark it as being active.
+Following is a non-normative response to a unsuccessful **restore** command where the account was in the **suspended** state:
 
-## **delete** 
-Perform the `unauthorize` command on the account, and then delete all data associated with an account.
+```json
+{
+  "current_state": "restore",
+  "error": "incompatible_state"
+}
+```
 
+## **activate** Command
+Create an account with the included claims in the identity register. The account MUST be in the **unknown** state. The account is in the **active** state after successful processing. If the account is already in the register, 
 
+## **maintain** Command
+Update an existing account in the identity register with the included claims. The account MUST be in the **active** state. The account remains in the **active** state after successful processing.
 
-# Error Responses
+## **suspend** Command
+Perform the `unauthorize` command on the account and then mark the account as being temporarily unavailable in the identity register. The account MUST be in the **active** or **archived** states. The account is in the **suspended** state after successful processing.
 
-## **account_exists**
+## **reactivate** Command
+Mark a suspended account as being active in the identity register. The account MUST be in the **suspended** state. The account is in the **active** state after successful processing.
 
-If the account already exists, return 400 status code, and the `account_exists` error.
+## **archive** Command
+Perform the `unauthorize` command on the account and remove the account from the identity register. The account MUST be in either the **active** or **suspended** state. The account is in the **archived** state after successful processing.
 
-Applies to:
+## **restore** Command
+Restore an archived account to the identity register and mark it as being active. The account MUST be in either the **archived** state. The account is in the **active** state after successful processing.
 
-*activate
+## **delete** Command
+Perform the `unauthorize` command on the account, and then delete all data associated with an account. The account can be in any state except **unknown**. The account is in the **unknown** state after successful processing.
 
-command.
-
-## **unknown_account**
-
-If the account does not exist, return the `unknown_account` error.
-
-Applies to:
-
-*unauthorize
-*maintain
-*suspend
-*reactivate
-*archive
-*restore
-*delete
-
-
-RETURN CURRENT STATE IF WRONG STATE FOR COMMAND
-
-commands.
-
-## **unsupported_command**
-
-The RP does not support the command requested. The RP may support commands for some OPs, and not others, and for some organizations, and not others.
-
-## **invalid_state**
-
-returns **current_state** 
 
 # OpenID Provider Command Support
 
@@ -545,8 +586,10 @@ is not a consideration.
 
 *To be completed.*
 
-
 # IANA Considerations
+
+*Not all entries have been added.*
+
 
 ## OAuth Authorization Server Metadata Registry
 
