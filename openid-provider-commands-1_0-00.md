@@ -498,7 +498,7 @@ Create an account with the included claims in the identity register. The account
 Update an existing account in the identity register with the included claims. The account MUST be in the **active** state. The account remains in the **active** state after successful processing.
 
 ## **suspend** Command
-Perform the `unauthorize` command on the account and then mark the account as being temporarily unavailable in the identity register. The account MUST be in the **active** or **archived** states. The account is in the **suspended** state after successful processing.
+Perform the `unauthorize` command on the account and then mark the account as being temporarily unavailable in the identity register. The account MUST be in the **active** state. The account is in the **suspended** state after successful processing.
 
 ## **reactivate** Command
 Mark a suspended account as being active in the identity register. The account MUST be in the **suspended** state. The account is in the **active** state after successful processing.
@@ -507,7 +507,7 @@ Mark a suspended account as being active in the identity register. The account M
 Perform the `unauthorize` command on the account and remove the account from the identity register. The account MUST be in either the **active** or **suspended** state. The account is in the **archived** state after successful processing.
 
 ## **restore** Command
-Restore an archived account to the identity register and mark it as being active. The account MUST be in either the **archived** state. The account is in the **active** state after successful processing.
+Restore an archived account to the identity register and mark it as being active. The account MUST be in the **archived** state. The account is in the **active** state after successful processing.
 
 ## **delete** Command
 Perform the `unauthorize` command on the account, and then delete all data associated with an account. The account can be in any state except **unknown**. The account is in the **unknown** state after successful processing.
