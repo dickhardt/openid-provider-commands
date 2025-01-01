@@ -33,7 +33,7 @@
     wcwidth 0.2.13
     weasyprint 61.2
 -->
-<link href="/usr/src/app/tmp/07052e02-257e-42e4-8667-19e669c3fc1a/openid-provider-commands-1_0-00.xml" rel="alternate" type="application/rfc+xml">
+<link href="/usr/src/app/tmp/693df7a7-c627-4569-a7b5-f4a93b305fc7/openid-provider-commands-1_0-00.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
 <style type="text/css">/*
 
@@ -1916,10 +1916,28 @@ The <strong>org</strong> claim is OPTIONAL and indicates the <strong>groups</str
 <p id="section-6.2-6">Following is a non-normative response to a unsuccessful <strong>restore</strong> command where the account was in the <strong>suspended</strong> state:<a href="#section-6.2-6" class="pilcrow">¶</a></p>
 <div class="lang-json sourcecode" id="section-6.2-7">
 <pre>{
-  "current_state": "restore",
+  "current_state": "suspended",
   "error": "incompatible_state"
 }
 </pre><a href="#section-6.2-7" class="pilcrow">¶</a>
+</div>
+<p id="section-6.2-8">Note that if an <strong>activate</strong> command is sent for an account that exists, or one of the other commands are sent for an account that does not exist,
+the account is incompatible state.<a href="#section-6.2-8" class="pilcrow">¶</a></p>
+<p id="section-6.2-9">Following is a non-normative response to an unsuccessful <strong>activate</strong> for an existing account in the <strong>activated</strong> state:<a href="#section-6.2-9" class="pilcrow">¶</a></p>
+<div class="lang-json sourcecode" id="section-6.2-10">
+<pre>{
+  "current_state": "activated",
+  "error": "incompatible_state"
+}
+</pre><a href="#section-6.2-10" class="pilcrow">¶</a>
+</div>
+<p id="section-6.2-11">Following is a non-normative response to an unsuccessful <strong>maintain</strong> for an non-existing account:<a href="#section-6.2-11" class="pilcrow">¶</a></p>
+<div class="lang-json sourcecode" id="section-6.2-12">
+<pre>{
+  "current_state": "unknown",
+  "error": "incompatible_state"
+}
+</pre><a href="#section-6.2-12" class="pilcrow">¶</a>
 </div>
 </section>
 </div>

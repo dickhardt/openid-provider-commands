@@ -464,10 +464,32 @@ Following is a non-normative response to a unsuccessful **restore** command wher
 
 ```json
 {
-  "current_state": "restore",
+  "current_state": "suspended",
   "error": "incompatible_state"
 }
 ```
+
+Note that if an **activate** command is sent for an account that exists, or one of the other commands are sent for an account that does not exist, 
+the account is incompatible state. 
+
+Following is a non-normative response to an unsuccessful **activate** for an existing account in the **activated** state:
+
+```json
+{
+  "current_state": "activated",
+  "error": "incompatible_state"
+}
+```
+
+Following is a non-normative response to an unsuccessful **maintain** for an non-existing account:
+
+```json
+{
+  "current_state": "unknown",
+  "error": "incompatible_state"
+}
+```
+
 
 ## **activate** Command
 Create an account with the included claims in the identity register. The account MUST be in the **unknown** state. The account is in the **active** state after successful processing. If the account is already in the register, 
