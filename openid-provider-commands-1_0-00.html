@@ -33,7 +33,7 @@
     wcwidth 0.2.13
     weasyprint 61.2
 -->
-<link href="/usr/src/app/tmp/510dbb6c-9ff1-4bcd-aa94-21709f37865b/openid-provider-commands-1_0-00.xml" rel="alternate" type="application/rfc+xml">
+<link href="/usr/src/app/tmp/d38b67ef-30f6-4f83-ba94-f6963518acfe/openid-provider-commands-1_0-00.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
 <style type="text/css">/*
 
@@ -1231,7 +1231,7 @@ li > p:last-of-type:only-child {
 <dd class="workgroup">OpenID Connect</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2025-01-01" class="published">1 January 2025</time>
+<time datetime="2025-01-02" class="published">2 January 2025</time>
     </dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
@@ -1426,7 +1426,7 @@ li > p:last-of-type:only-child {
 <p id="section-1-3">For example, many jurisdictions grant end-users the "right to be forgotten," enabling them to request the deletion of their accounts and associated data. When such requests arise, OPs may need to notify RPs to fully delete the end-user's account and remove all related data, respecting both regulatory obligations and end-user privacy preferences.<a href="#section-1-3" class="pilcrow">¶</a></p>
 <p id="section-1-4">In scenarios where malicious activity is detected or suspected, OPs play a vital role in protecting end-users. They may need to instruct RPs to revoke authorization or delete accounts created by malicious actors. This helps contain the impact of unauthorized actions and prevent further misuse of compromised accounts.<a href="#section-1-4" class="pilcrow">¶</a></p>
 <p id="section-1-5">In enterprise environments, where organizations centrally manage workforce access, OPs handle essential account operations across various stages of the lifecycle. These operations include activating, maintaining, suspending, reactivating, archiving, restoring, and deleting accounts to maintain security and compliance.<a href="#section-1-5" class="pilcrow">¶</a></p>
-<p id="section-1-6">OpenID Provider Commands enable OPs to manage these account lifecycle stages directly with RPs, extending the functionality of OIDC to cover the full spectrum of account management needs.<a href="#section-1-6" class="pilcrow">¶</a></p>
+<p id="section-1-6">OpenID Provider Commands enable OPs to manage these account lifecycle stages directly with RPs, building upon the existing OP / RP relationship to cover the full spectrum of account management needs.<a href="#section-1-6" class="pilcrow">¶</a></p>
 <blockquote id="section-1-7">
         <p id="section-1-7.1">Author NOTE<a href="#section-1-7.1" class="pilcrow">¶</a></p>
 <p id="section-1-7.2">The target implementors of this specification are RPs that have implemented, or will implement OpenID Connect. Reusing the OpenID Connect ID Token
@@ -1794,10 +1794,10 @@ of using explicit typing.<a href="#section-4-13" class="pilcrow">¶</a></p>
         <h3 id="name-groups-command">
 <a href="#section-5.2" class="section-number selfRef">5.2. </a><a href="#name-groups-command" class="section-name selfRef"><strong>groups</strong> Command</a>
         </h3>
-<p id="section-5.2-1">The OP sends this command to inform the OP of the <strong>groups</strong> claims the OP may include in ID and Command Tokens.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
+<p id="section-5.2-1">The OP sends this command to inform the RP of the complete set of possible <strong>groups</strong> claims the OP MAY include in ID and Command Tokens.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
 <p id="section-5.2-2">The <strong>groups</strong> claim is REQUIRED.
 The <strong>org</strong> claim is OPTIONAL and indicates the <strong>groups</strong> are specific to the <strong>org</strong>.<a href="#section-5.2-2" class="pilcrow">¶</a></p>
-<p id="section-5.2-3">A <strong>groups</strong> command overrides any previous <strong>groups</strong> command.<a href="#section-5.2-3" class="pilcrow">¶</a></p>
+<p id="section-5.2-3">A <strong>groups</strong> command overrides the set of possible <strong>group</strong> claims any previous <strong>groups</strong> command provided.<a href="#section-5.2-3" class="pilcrow">¶</a></p>
 <p id="section-5.2-4">Following is a non-normative example of a <strong>groups</strong> Command Token payload:<a href="#section-5.2-4" class="pilcrow">¶</a></p>
 <div class="lang-json sourcecode" id="section-5.2-5">
 <pre>{

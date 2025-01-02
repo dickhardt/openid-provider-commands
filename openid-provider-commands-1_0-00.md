@@ -48,7 +48,7 @@ In scenarios where malicious activity is detected or suspected, OPs play a vital
 
 In enterprise environments, where organizations centrally manage workforce access, OPs handle essential account operations across various stages of the lifecycle. These operations include activating, maintaining, suspending, reactivating, archiving, restoring, and deleting accounts to maintain security and compliance.
 
-OpenID Provider Commands enable OPs to manage these account lifecycle stages directly with RPs, extending the functionality of OIDC to cover the full spectrum of account management needs.
+OpenID Provider Commands enable OPs to manage these account lifecycle stages directly with RPs, building upon the existing OP / RP relationship to cover the full spectrum of account management needs.
 
 > Author NOTE
 > 
@@ -359,12 +359,12 @@ Following is a non-normative example of a **describe** response to the example r
 ```
 
 ## **groups** Command
-The OP sends this command to inform the OP of the **groups** claims the OP may include in ID and Command Tokens. 
+The OP sends this command to inform the RP of the complete set of possible **groups** claims the OP MAY include in ID and Command Tokens. 
 
 The **groups** claim is REQUIRED.
 The **org** claim is OPTIONAL and indicates the **groups** are specific to the **org**.
 
-A **groups** command overrides any previous **groups** command.
+A **groups** command overrides the set of possible **group** claims any previous **groups** command provided. 
 
 Following is a non-normative example of a **groups** Command Token payload:
 
