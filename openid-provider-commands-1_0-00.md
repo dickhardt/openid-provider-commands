@@ -132,7 +132,7 @@ The RP's response SHOULD include the Cache-Control HTTP response header field wi
 Cache-Control: no-store
 ```
 
-If there is a response body, it MUST by JSON and use the `application/json` media type.
+If there is a response body, it MUST be JSON and use the `application/json` media type.
 
 If the request is not valid, the RP MUST return an `error` parameter, and may include a `error_description` parameter. 
 Note that the information conveyed in an error response is intended to help debug deployments;
@@ -213,7 +213,7 @@ The following Claims are used within the Command Token:
     A JSON string that is an OP specific, globally unique identifier for the group.
 
     - **display** 
-    REQUIRES.
+    REQUIRED.
     A JSON string that is an OP unique human readable string representing the group. The **display** MUST not be used as a persistent identifier for the group.
 
 > Author NOTE
@@ -320,7 +320,7 @@ Following is a non-normative example of a *describe* Command Token payload:
 
 If the Command Token is valid, the RP responds with an `application/json` media type that MUST include:
 
-- **iss**: the **iss* value from the Command Token.
+- **iss**: the **iss** value from the Command Token.
 - **commands_supported**: a JSON array of commands the RP supports. The **describe** value MUST be included.
 - **commands_uri**: the RPs Commands URI. This is the URL the Command Token was sent to.
 
@@ -472,11 +472,11 @@ Following is a non-normative response to a unsuccessful **restore** command wher
 Note that if an **activate** command is sent for an account that exists, or one of the other commands are sent for an account that does not exist, 
 the account is incompatible state. 
 
-Following is a non-normative response to an unsuccessful **activate** for an existing account in the **activated** state:
+Following is a non-normative response to an unsuccessful **activate** for an existing account in the **active** state:
 
 ```json
 {
-  "current_state": "activated",
+  "current_state": "active",
   "error": "incompatible_state"
 }
 ```
