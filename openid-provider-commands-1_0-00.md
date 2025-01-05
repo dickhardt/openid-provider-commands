@@ -30,13 +30,34 @@ organization="Independent"
 
 .# Abstract
 
-OpenID Connect defines a protocol for an end-user to use an OpenID Provider (OP) to log in to a Relying Party (RP), assert claims about the end-user using an ID Token, and create an account at the RP with those claims.
+OpenID Connect defines a protocol for an end-user to use an OpenID Provider (OP) to log in to a Relying Party (RP) and assert claims about the end-user using an ID Token. RPs will often use the identity claims about the user to implicitly (or explicitly) establish an account for the user at the RP
 
 OpenID Provider Commands complements OpenID Connect by introducing a set of commands for an OP to directly manage an end-user account at an RP. These commands enable an OP to activate, maintain, suspend, reactivate, archive, restore, delete, and unauthorize an end-user account. Command tokens simplify RP adoption by re-use of the OpenID Connect ID Token schema, security, and verification mechanisms.
 
 {mainmatter}
 
+
 # Introduction
+
+> **FAQ for early reviewers**
+> 
+> 
+>**1. How does SCIM compare to OpenID Provider (OP) Commands?**
+>
+> The SCIM protocol is a general purpose protocol for a client to manage resources at a server. When the SCIM protocol is used between an IdP and an RP, the schema is defined by the RP. The resources managed are in the context of the RP tenant in a multi-tenant RP. Any extensions to the schema are defined by the RP. This provided an interoperable protocol to manage RP resources
+> OP Commands are an extension of a user account created by OpenID Connect. It uses the same identity claims that the OP issues for the user. It uses the same token claims, and is verified the same way. OP Commands are issued in the context of the OP tenant in a multi-tenant OP.
+>
+> 
+>**2. How do Shared Signals / RISC compare to OP Commands?**
+>
+> Shared Signals and RISC are events that one party is sharing with another party. The actions a receiving party takes upon receiving a signal are intentionally not defined. 
+> The actions taken by the RP when receiving an OP Command is specified. This gives an OP control over the account at the RP.
+>
+> 
+>**3. Are OP Commands a replacement for SCIM, Shared Signals, or RISC?**
+>
+> No. These standards are deployed by organizations that have complex requirements, and these standards meet there needs. Most OP / RPs do not deploy any of these standards, as the implementation complexity is not warranted. OP Commands are designed to build on OpenID Connect, allowing RPs using OpenID Connect an easy path to offer OPs a standard API for security and lifecycle operations. 
+>
 
 OpenID Connect 1.0 (OIDC) is a widely adopted identity protocol that enables client applications, known as relying parties (RPs), to verify the identity of end-users based on authentication performed by a trusted service, the OpenID Provider (OP). OIDC also provides mechanisms for securely obtaining identity attributes, or claims, about the end-user, which helps RPs tailor experiences and manage access with confidence.
 
@@ -49,13 +70,6 @@ In scenarios where malicious activity is detected or suspected, OPs play a vital
 In enterprise environments, where organizations centrally manage workforce access, OPs handle essential account operations across various stages of the lifecycle. These operations include activating, maintaining, suspending, reactivating, archiving, restoring, and deleting accounts to maintain security and compliance.
 
 OpenID Provider Commands enable OPs to manage these account lifecycle stages directly with RPs, building upon the existing OP / RP relationship to cover the full spectrum of account management needs.
-
-> Author NOTE
-> 
-> The target implementors of this specification are RPs that have implemented, or will implement OpenID Connect. Reusing the OpenID Connect ID Token 
-> syntax, semantics, and verification simplifies implementation of this specification. Reusing token verification removes any requirement to manage or configure additional credentials by either the OP or RP.
->
-> The schema of a Command Token is defined by this specification, and any extensions are defined by the OP, aligning with how an ID Token schema is defined. This is in contrast to SCIM where the group schema and user schema extensions are defined by the service provider, AKA RP. 
 
 
 ## Requirements Notation and Conventions
@@ -76,24 +90,35 @@ the use of *this fixed-width font*.
 
 This specification defines the following terms:
 
-- **Command**: An instruction from an OP to an RP.
+- **Command**: An instruction from an OP to an RP. It is a synchronous request and response.
 
 - **Command Token**: A JSON Web Token (JWT) signed by the OP that contains Claims about the Command being issued.
 
 - **Commands URI**: The URL at the RP where OPs post Command Tokens.
 
-## Overview
+- **Organization**: A register of accounts belonging to one entity. If an OP supports multiple Organizations with the same `iss` claim, the OP MUST include the `org` claim in Commands to identify the Organization.
 
-This specification defines a Command Request containing a Command Token sent from the OP to the RP, and a Command Response returned from the RP to the OP.
+## Protocol Overview
+
+This specification defines a Command request containing a Command Token sent from the OP to the RP, and a Command response returned from the RP to the OP.
 
 ```
-+------+  Command Request       +------+
++------+  Command request       +------+
 |      |---- Command Token ---->|      |
 |  OP  |                        |  RP  | 
 |      |<-----------------------|      |
-+------+      Command Response  +------+
++------+      Command response  +------+
 ```
 
+## Command Usage Overview
+
+An OP will typically send a **describe** Command at the start of the relationship with an RP relationship, and then periodically, to learn the other Commands an RP supports. If the OP represents multiple Organizations, the OP will send a **describe** command for each Organization. The OP may use the **describe** Command response to determine if the RP supports functionality required by the Organization before issuing ID Tokens or **activate** Commands to the RP.
+
+If the RP supports the **groups** Command, the OP will typically send the **groups** Command at the start of the Organization and RP relationship, and then whenever the groups change.
+
+If the RP supports any Lifecycle Commands, the OP will send supported Lifecycle Commands to synchronize the state of accounts at the RP with the state at the Organization. If the RP supports Lifecycle Commands, the RP should also support the **audit** Command. The OP will typically send an **audit** Command at the start of the Organization and RP relationship, and then periodically, to learn the state of the Organization's accounts at the RP and correct any drift between the account state at the Organization and the RP.
+
+If the RP supports the **unauthorize** Command, the OP will send the **unauthorize** Command if the OP suspects an account has been taken over by a malicious actor.
 
 # Command Request
 
@@ -107,7 +132,7 @@ The POST body MAY contain other values in addition to
 `command_token`.
 Values that are not understood by the implementation MUST be ignored.
 
-The following is a non-normative example of such a command request
+The following is a non-normative example of such a Command request
 (with most of the Command Token contents omitted for brevity):
 
 ```
@@ -120,13 +145,13 @@ command_token=eyJhbGci ... .eyJpc3Mi ... .T3BlbklE ...
 
 # Command Response
 
-If the command succeeded, the RP MUST respond with HTTP 200 OK.
+If the Command succeeded, the RP MUST respond with HTTP 200 OK.
 However, note that some Web frameworks will substitute an HTTP 204 No Content response
 for an HTTP 200 OK when the HTTP body is empty.
 Therefore, OPs should be prepared to also process an HTTP 204 No Content response as a successful response.
 
 
-The RP's response SHOULD include the Cache-Control HTTP response header field with a no-store value, keeping the response from being cached to prevent cached responses from interfering with future command requests. An example of this is:
+The RP's response MUST include the Cache-Control HTTP response header field with a no-store value, keeping the response from being cached to prevent cached responses from interfering with future Command requests. An example of this is:
 
 ```
 Cache-Control: no-store
@@ -142,22 +167,22 @@ to trigger different runtime behaviors.
 
 ## Invalid Request Error
 
-If there was a problem with the syntax of the command request, or the Command Token was invalid, the RP MUST return an HTTP 400 Bad Request and include the `error` parameter with a value of `invalid_request`. 
+If there was a problem with the syntax of the Command request, or the Command Token was invalid, the RP MUST return an HTTP 400 Bad Request and include the `error` parameter with a value of `invalid_request`. 
 
 ## Unsupported Command Error
 
-If the RP does not support the command requested, the RP MUST return an HTTP 400 Bad Request and include the `error` parameter with the value of `unsupported_command`.
+If the RP does not support the Command requested, the RP MUST return an HTTP 400 Bad Request and include the `error` parameter with the value of `unsupported_command`.
 
-Note that the RP may support commands for some OPs, and not others, and for some organizations, and not others.
+Note that the RP may support Commands for some OPs, and not others, and for some Organizations, and not others.
 
 ## Server Error
 
-If the RP is unable to process a valid request, the RP MUST respond with a Server Error status code as defined in RFC 9110 section 15.6.
+If the RP is unable to process a valid request, the RP MUST respond with a 5xx Server Error status code as defined in RFC 9110 section 15.6.
 
 # Command Token
 
 OPs send a JWT similar to an ID Token to RPs called a Command Token
-to issue commands. ID Tokens are defined in Section 2 of {{OpenID.Core}}.
+to issue Commands. ID Tokens are defined in Section 2 of {{OpenID.Core}}.
 
 The following Claims are used within the Command Token:
 
@@ -166,9 +191,9 @@ The following Claims are used within the Command Token:
   Issuer Identifier, as specified in Section 2 of {{OpenID.Core}}.
 
 - **sub**  
-  REQUIRED except for **describe** and **groups** command. 
+  REQUIRED except for the **describe**, **groups**, **audit** Commands. 
 
-  PROHIBITED for the **describe** and **groups** command. 
+  PROHIBITED for the **describe**, **groups**, **audit** Commands. 
 
   Subject Identifier, as specified in Section 2 of {{OpenID.Core}}. 
   
@@ -195,33 +220,25 @@ The following Claims are used within the Command Token:
   A JSON string. The command for the RP to execute. See [Commands](#commands) for standard values defined in this document. Other specifications may define additional values.
 
 - **org**
-  OPTIONAL.
-  The organization the user belongs to, typically a tenant of the OP. It is a JSON object containing:
+  REQUIRED for OPs that support multiple tenants for the same `iss`.
+  The Organization the user belongs to. It is a JSON object containing:
     - **id** 
     REQUIRED.
-    A JSON string that is an OP specific, globally unique identifier for the organization.
+    A JSON string that is a stable OP unique identifier for the Organization.
 
     - **domain**
     OPTIONAL
-    A JSON string for a domain name that the OP has verified the organization controls. The **domain** MUST not be used as a persistent identifier for the organization. The **domain** MAY be used to link organization data.
+    A JSON string for a domain name that the OP has verified the Organization controls. The **domain** MUST not be used as a persistent identifier by the RP for the Organization. The **domain** MAY be used to link Organization data.
 
 - **groups**
   OPTIONAL for the **activate** and **maintain** lifecycle commands.
-  The **groups** claim is a JSON array of zero or more JSON objects that each contain:
-    - **id** 
-    REQUIRED. 
-    A JSON string that is an OP specific, globally unique identifier for the group.
 
-    - **display** 
-    REQUIRED.
-    A JSON string that is an OP unique human readable string representing the group. The **display** MUST not be used as a persistent identifier for the group.
+  The **groups** claim is a JSON array of stable OP unique identifiers for the groups that the user belongs to. The OP SHOULD include the **group** claim if the OP has not send a **groups** Command.
 
 > Author NOTE
 >
 > The **groups** claim is registered in [IANA JSON Web Token Claims](https://www.iana.org/assignments/jwt/jwt.xhtml), which refers to [RFC 7643 4.1.2](https://www.rfc-editor.org/rfc/rfc7643.html#section-4.1.2) and [RFC 9068 2.2.3.1](https://www.rfc-editor.org/rfc/rfc9068.html#name-claims-for-authorization-ou)
-> Besides defining that it is a list, none of the specifications define the properties of a group. To enable interop, this document defines the contents of the groups claim.
->
-> Both **org.id** and **groups[].id** are defined as being a globally unique identifier rather than being OP unique to allow an RP to use them as an index. They are not defined as UUIDs, but that is an acceptable format. Is this a step too far? Should it just be OP unique?
+> Besides defining that it is a list, none of the specifications define the properties of a group. To enable interop, this document defines the contents of the groups claim. As there is a **groups** command to provide the mapping between group identifiers and group display names, the **groups** claim only include the group identifiers.
 
 
 The following Claim MUST NOT be used within the Command Token:
@@ -234,21 +251,18 @@ The following Claim MUST NOT be used within the Command Token:
 Command Tokens MAY contain other Claims.
 Any Claims used that are not understood MUST be ignored.
 
-A Command Token MUST be signed and MAY also be encrypted.
-The same keys are used to sign and encrypt Command Tokens
+A Command Token MUST be signed.
+The same keys are used to sign Command Tokens
 as are used for ID Tokens.
-If the Command Token is encrypted, it SHOULD replicate the
-`iss` (issuer) claim
-in the JWT Header Parameters,
-as specified in Section 5.3 of {{JWT}}.
 
-It is RECOMMENDED that Command Tokens be explicitly typed.
+
+Command Tokens MUST be explicitly typed.
 This is accomplished by including a `typ` (type) Header Parameter
 with a value of `command+jwt` in the Command Token.
 See [Security Considerations](#security-considerations) for a discussion of the security and interoperability considerations
 of using explicit typing.
 
-A non-normative example JWT Claims Set for Command Token for an **activate** command follows:
+A non-normative example JWT Claims Set for the Command Token for an **activate** command follows:
 
 ```json
 {
@@ -259,24 +273,22 @@ A non-normative example JWT Claims Set for Command Token for an **activate** com
   "exp": 1734003060,
   "jti": "bWJq",
   "command": "activate",
+  "given_name": "Jane",
+  "family_name": "Smith",
+  "email": "jane.smith@example.org",
+  "email_verified": true,
   "org": {
     "id": "ff6e7c96-7309-4f96-8a3b-39a8c12337b0",
     "domain": "example.com"
   },
   "groups": [
-    {
-      "id": "b0f4861d-f3d6-4f76-be2f-e467daddc6f6",
-      "display": "Administrators"
-    },
-    {
-      "id": "88799417-c72f-48fc-9e63-f012d8822ad1",
-      "display": "Staff"
-    }
+    "b0f4861d-f3d6-4f76-be2f-e467daddc6f6",
+    "88799417-c72f-48fc-9e63-f012d8822ad1",
   ]
 }
 ```
 
-A non-normative example JWT Claims Set for Command Token for an **unauthorize** command follows:
+A non-normative example JWT Claims Set for the Command Token for an **unauthorize** command follows:
 
 ```json
 {
@@ -298,7 +310,7 @@ The RP MUST support the **describe** command. Support for other general commands
 
 ## **describe** Command
 
-The OP sends this command to the RP to learn what commands the RP supports, and other metadata about the RP. 
+The OP sends this command to the RP to learn what commands the RP supports, and other metadata the RP chooses to share. 
 
 Following is a non-normative example of a *describe* Command Token payload:
 
@@ -320,13 +332,19 @@ Following is a non-normative example of a *describe* Command Token payload:
 
 If the Command Token is valid, the RP responds with an `application/json` media type that MUST include:
 
-- **iss**: the **iss** value from the Command Token.
+- **context**: a JSON object.
+  - **iss**
+  REQUIRED. the **iss** value from the Command Token.
+  - **org**
+  REQUIRED if the Command Token contained an **org** claim, then the **id** value from the **org** claim must be included an  **org** JSON object
+
 - **commands_supported**: a JSON array of commands the RP supports. The **describe** value MUST be included.
 - **commands_uri**: the RPs Commands URI. This is the URL the Command Token was sent to.
+- **describe_ttl**: the time in seconds the **describe** Command response is valid for.
+- **client_id**: the `client_id` for the RP.
 
-If the Command Token included the **org** claim, then the **org** JSON object with the **id** claim MUST be included in the response.
 
-The response MAY also include any OAuth Dynamic Client Registration Metadata *TBD [IANA reference]https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#client-metadata)*
+The response MAY also include any OAuth Dynamic Client Registration Metadata *TBD [IANA reference](https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#client-metadata)*
 
 The RP MAY provide a different response for different **iss** claim values, and for different **org** claim values.
 
@@ -334,9 +352,11 @@ Following is a non-normative example of a **describe** response to the example r
 
 ```json
 {
-  "iss": "https://op.example.org",
-  "org": {
-    "id": "73849284748493"
+  "context": {
+    "iss": "https://op.example.org",
+    "org": {
+      "id": "73849284748493"
+    },
   },
   "commands_uri": "https://rp.example.net/commands",
   "commands_supported":[
@@ -344,8 +364,11 @@ Following is a non-normative example of a **describe** response to the example r
     "unauthorize",
     "suspend",
     "reactivate",
-    "delete"
+    "delete",
+    "audit"
   ],
+  "commands_ttl": 86400,
+  "client_id": "s6BhdRkqt3",
   "client_name": "Example RP",
   "logo_uri": "https://rp.example.net/logo.png",
   "policy_uri": "https://rp.example.net/privacy-policy.html",
@@ -362,7 +385,7 @@ Following is a non-normative example of a **describe** response to the example r
 The OP sends this command to inform the RP of the complete set of possible **groups** claims the OP MAY include in ID and Command Tokens. 
 
 The **groups** claim is REQUIRED.
-The **org** claim is OPTIONAL and indicates the **groups** are specific to the **org**.
+The **org** claim is REQUIRED when the command is sent from a multi-tenant OP.
 
 A **groups** command overrides the set of possible **group** claims any previous **groups** command provided. 
 
@@ -395,6 +418,10 @@ Following is a non-normative example of a **groups** Command Token payload:
 
 ## **unauthorize** Command
 The OP sends this command when it suspects a previous OpenID Connect ID Token issued by the OP was granted to a malicious actor. The RP MUST revoke all active sessions and MUST reverse all authorization that may have been granted to applications, including `offline_access`, for account resources identified by the **sub**.
+
+The account MUST be in the **active** state, and remains in the **active** state after executing the command. If the account is in any other state, the RP MUST return an [Incompatible State Response](#incompatible-state-response).
+
+The functionality of the **unauthorize** command is also performed by **suspend**, **archive**, and **delete** commands to ensure an account in the **suspended**, **archived**, and **unknown** state no longer had access to resources.
 
 
 # Lifecycle Commands
@@ -443,28 +470,30 @@ Following are the potential state transitions:
 ```                                             
 
 
-## Lifecycle Command Responses
+## Lifecycle Command Success Response
 
-When an RP successful processes a lifecycle command, the RP returns an HTTP 200 Ok and a JSON object containing **current_state** set the state of the account after processing. 
+When an RP successful processes a lifecycle command, the RP returns an HTTP 200 Ok and a JSON object containing **account_state** set to the state of the account after processing. 
 
 Following is a non-normative response to a successful **activate** command:
 
 ```json
 {
-  "current_state": "active"
+  "account_state": "active"
 }
 ```
 
+## Incompatible State Response
+
 If the account is in an incompatible state in the identity register for the lifecycle command, the RP returns an HTTP 409 Conflict and a JSON object containing:
 
-- **current_state** where the value is the current state of the account in the identity register
+- **account_state** where the value is the current state of the account in the identity register
 - **error** set to the value "incompatible_state"
 
 Following is a non-normative response to a unsuccessful **restore** command where the account was in the **suspended** state:
 
 ```json
 {
-  "current_state": "suspended",
+  "account_state": "suspended",
   "error": "incompatible_state"
 }
 ```
@@ -476,7 +505,7 @@ Following is a non-normative response to an unsuccessful **activate** for an exi
 
 ```json
 {
-  "current_state": "active",
+  "account_state": "active",
   "error": "incompatible_state"
 }
 ```
@@ -485,32 +514,129 @@ Following is a non-normative response to an unsuccessful **maintain** for an non
 
 ```json
 {
-  "current_state": "unknown",
+  "account_state": "unknown",
   "error": "incompatible_state"
 }
 ```
 
 
 ## **activate** Command
-Create an account with the included claims in the identity register. The account MUST be in the **unknown** state. The account is in the **active** state after successful processing. If the account is already in the register, 
+The RP MUST an account with the included claims in the identity register. The account MUST be in the **unknown** state. The account is in the **active** state after successful processing. If the account is already in the register, 
 
 ## **maintain** Command
-Update an existing account in the identity register with the included claims. The account MUST be in the **active** state. The account remains in the **active** state after successful processing.
+The RP MUST update an existing account in the identity register with the included claims. The account MUST be in the **active** state. The account remains in the **active** state after successful processing.
 
 ## **suspend** Command
-Perform the `unauthorize` command on the account and then mark the account as being temporarily unavailable in the identity register. The account MUST be in the **active** state. The account is in the **suspended** state after successful processing.
+The RP MUST perform the `unauthorize` functionality on the account and mark the account as being temporarily unavailable in the identity register. The account MUST be in the **active** state. The account is in the **suspended** state after successful processing.
 
 ## **reactivate** Command
-Mark a suspended account as being active in the identity register. The account MUST be in the **suspended** state. The account is in the **active** state after successful processing.
+The RP MUST mark a suspended account as being active in the identity register. The account MUST be in the **suspended** state. The account is in the **active** state after successful processing. The RP SHOULD support the **reactivate** Command if it supports the **suspend** Command.
 
 ## **archive** Command
-Perform the `unauthorize` command on the account and remove the account from the identity register. The account MUST be in either the **active** or **suspended** state. The account is in the **archived** state after successful processing.
+The RP MUST perform the `unauthorize` functionality on the account and remove the account from the identity register. The account MUST be in either the **active** or **suspended** state. The account is in the **archived** state after successful processing.
 
 ## **restore** Command
-Restore an archived account to the identity register and mark it as being active. The account MUST be in the **archived** state. The account is in the **active** state after successful processing.
+The RP MUST restore an archived account to the identity register and mark it as being active. The account MUST be in the **archived** state. The account is in the **active** state after successful processing. The RP SHOULD support the **restore** Command if it supports the **archive** Command.
 
 ## **delete** Command
-Perform the `unauthorize` command on the account, and then delete all data associated with an account. The account can be in any state except **unknown**. The account is in the **unknown** state after successful processing.
+The RP MUST perform the `unauthorize` functionality on the account, and delete all data associated with an account. The account can be in any state except **unknown**. The account is in the **unknown** state after successful processing.
+
+
+# **audit** Command
+
+The OP sends the **audit** Command to learn the state of accounts for an Organization at an RP. The **audit** Command uses [Server-Side Events](https://html.spec.whatwg.org/multipage/server-sent-events.html#server-sent-events) (SSE) to transfer **audit** results. The OP MUST include the following HTTP headers when sending the **audit** Command:
+
+
+- `Accept` with the value of `text/event-stream` to indicate support for Server-Sent Events.
+- `Cache-Control` with the value of `no-cache` to signal to intermediaries to not cache the response.
+- `Connection` with the value of `keep-alive` to keep the connection open.
+
+
+It is RECOMMENDED the OP accept compression of the response by sending the `Accept-Encoding` HTTP header with the value of `gzip`, or `gzip, br`. 
+
+The following is a non-normative example of an **audit** Command request:
+(with most of the Command Token contents omitted for brevity):
+
+```
+POST /commands HTTP/1.1
+Host: rp.example.net
+Content-Type: application/x-www-form-urlencoded
+Accept: text/event-stream
+Cache-Control: no-cache
+Connection: keep-alive
+Accept-Encoding: gzip, br
+
+command_token=eyJhbGci ... .eyJpc3Mi ... .T3BlbklE ...
+```
+
+## **audit Response**
+
+The RP uses SSE to stream the **audit** response as a sequence of events. If the RP receives a valid **audit** Command, it MUST sent the `HTTP/1.1 200 OK` response, followed by the following headers:
+
+- `Content-Type` with the `text/event-stream` value
+- `Cache-Control` with the `no-cache` value
+- `Connection` with the `keep-alive` value
+
+If the OP sent a `Content-Encoding` header in the request with a compression the RP understands, the RP MAY include a `Content-Encoding` header with one of the OP provided values.
+
+Per SSE, the body of the response is a series of events. In addition to the required field name `data`, each event MUST include the `id` field with a unique value for each event, and the `event` field with a value of either `account-audit`, or `audit-complete`. The RP sends an `account-audit` event for each account at the RP for the `iss`, and `org` if sent, in the **audit** Command. When all `account-audit` events have been sent, the RP sends an `audit-complete` event.
+
+The `data` parameter of the `account-audit` event MUST contain the following:
+
+- `sub` representing the account
+- `account_state` representing the current state for the account from the states supported by the RP.
+- `groups` if groups have been provided for the account.
+- any identity claims that have been provided to the RP by the OP
+
+The `data` parameter of the `audit-complete` event MUST include the `total_accounts` property with a value for the total number of `account-audit` events the RP has sent.
+
+If there are no accounts at the RP that match the `audit` Command, the RP responds with only the `audit-complete` event with `total-accounts` having a value of 0.
+
+If the connection is lost, The OP SHOULD resend a new `audit` command and include the HTTP header `Last-Event-Id` with the last event `id` property received per SSE. Each event MUST include a unique `id` value.
+
+The following is a non-normative example of an **audit** Command request:
+
+```
+HTTP/1.1 200 OK
+Content-Type: text/event-stream
+Cache-Control: no-cache
+Connection: keep-alive
+Content-Encoding: gzip
+
+id: 1
+event: account-audit
+data: {
+  "sub": "248289761001",
+  "email": "janes.smith@example.com",
+  "given_name": "Jane",
+  "family_name": "Smith",
+  "groups": [
+    "b0f4861d-f3d6-4f76-be2f-e467daddc6f6",
+    "88799417-c72f-48fc-9e63-f012d8822ad1",
+  ],
+  "account_state": "active"
+}
+
+id: 2
+event: account-audit
+data: {
+  "sub": "98765412345",
+  "email": "john.doe@example.com",
+  "given_name": "John",
+  "family_name": "Doe",
+  "groups": [
+    "88799417-c72f-48fc-9e63-f012d8822ad1"
+  ],
+  "account_state": "suspended"
+}
+
+id: 3
+event: audit-complete
+data: {
+  "total_accounts": 2
+}
+
+```
 
 
 # OpenID Provider Command Support
@@ -668,7 +794,9 @@ This specification registers the `application/command+jwt` media type as per {{!
 
 # Acknowledgements
 
-*To be completed.*
+The authors would like to thank early feedback provided by George Fletcher, Dean Saxe, and Rifaat Shekh-Yusef.
+
+*To be updated.*
 
 # Notices
 
