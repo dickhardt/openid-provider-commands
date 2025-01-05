@@ -33,7 +33,7 @@
     wcwidth 0.2.13
     weasyprint 61.2
 -->
-<link href="/usr/src/app/tmp/5c085844-1019-4eb1-b787-6f34834169d5/openid-provider-commands-1_0-00.xml" rel="alternate" type="application/rfc+xml">
+<link href="/usr/src/app/tmp/3788401f-3392-426c-a5a8-5fcef4bc76d5/openid-provider-commands-1_0-00.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
 <style type="text/css">/*
 
@@ -1446,8 +1446,8 @@ The actions taken by the RP when receiving an OP Command is specified. This give
 <p id="section-1-1.6"><strong>3. Are OP Commands a replacement for SCIM, Shared Signals, or RISC?</strong><a href="#section-1-1.6" class="pilcrow">¶</a></p>
 <p id="section-1-1.7">No. These standards are deployed by organizations that have complex requirements, and these standards meet there needs. Most OP / RPs do not deploy any of these standards, as the implementation complexity is not warranted. OP Commands are designed to build on OpenID Connect, allowing RPs using OpenID Connect an easy path to offer OPs a standard API for security and lifecycle operations.<a href="#section-1-1.7" class="pilcrow">¶</a></p>
 </blockquote>
-<p id="section-1-2">OpenID Connect 1.0 (OIDC) is a widely adopted identity protocol that enables client applications, known as relying parties (RPs), to verify the identity of end-users based on authentication performed by a trusted service, the OpenID Provider (OP). OIDC also provides mechanisms for securely obtaining identity attributes, or claims, about the end-user, which helps RPs tailor experiences and manage access with confidence.<a href="#section-1-2" class="pilcrow">¶</a></p>
-<p id="section-1-3">OIDC not only allows an end-user to log in and authorize access to an RP but also facilitates creating an account with the RP. However, account creation is only the beginning of an account's lifecycle. Throughout the lifecycle, various actions may be required to ensure data integrity, security, and regulatory compliance.<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-2">OpenID Connect 1.0 is a widely adopted identity protocol that enables client applications, known as relying parties (RPs), to verify the identity of end-users based on authentication performed by a trusted service, the OpenID Provider (OP). OpenID Connect also provides mechanisms for securely obtaining identity attributes, or claims, about the end-user, which helps RPs tailor experiences and manage access with confidence.<a href="#section-1-2" class="pilcrow">¶</a></p>
+<p id="section-1-3">OpenID Connect not only allows an end-user to log in and authorize access to an RP but also facilitates creating an account with the RP. However, account creation is only the beginning of an account's lifecycle. Throughout the lifecycle, various actions may be required to ensure data integrity, security, and regulatory compliance.<a href="#section-1-3" class="pilcrow">¶</a></p>
 <p id="section-1-4">For example, many jurisdictions grant end-users the "right to be forgotten," enabling them to request the deletion of their accounts and associated data. When such requests arise, OPs may need to notify RPs to fully delete the end-user's account and remove all related data, respecting both regulatory obligations and end-user privacy preferences.<a href="#section-1-4" class="pilcrow">¶</a></p>
 <p id="section-1-5">In scenarios where malicious activity is detected or suspected, OPs play a vital role in protecting end-users. They may need to instruct RPs to revoke authorization or delete accounts created by malicious actors. This helps contain the impact of unauthorized actions and prevent further misuse of compromised accounts.<a href="#section-1-5" class="pilcrow">¶</a></p>
 <p id="section-1-6">In enterprise environments, where organizations centrally manage workforce access, OPs handle essential account operations across various stages of the lifecycle. These operations include activating, maintaining, suspending, reactivating, archiving, restoring, and deleting accounts to maintain security and compliance.<a href="#section-1-6" class="pilcrow">¶</a></p>
@@ -2255,23 +2255,7 @@ As described in <a href="#command-token">Command Token</a>,
 inclusion of a <code>nonce</code> Claim in a Command Token
 is prohibited to prevent its misuse as an ID Token.<a href="#section-10.1-2" class="pilcrow">¶</a></p>
 <p id="section-10.1-3">Another way to prevent cross-JWT confusion is to use explicit typing,
-as described in Section 3.11 of {{!RFC8725}}.
-One would explicitly type a Command Token by including a
-<code>typ</code> (type) Header Parameter with a value of
-<code>command+jwt</code>
-(which is registered in <a href="#media-type-registration">Media Type Registration</a>).
-Note that the <code>application/</code> portion of the
-<code>application/command+jwt</code> media type name is omitted
-when used as a <code>typ</code> Header Parameter value,
-as described in the <code>typ</code> definition
-in Section 4.1.9 of {{!RFC7515}}.
-Including an explicit type in issued Command Tokens is a best practice.
-Note however, that requiring explicitly typed Command Tokens
-will break most existing deployments,
-as existing OPs and RPs are already commonly using untyped Command Tokens.
-However, requiring explicit typing would be a good idea
-for new deployment profiles where compatibility with existing deployments
-is not a consideration.<a href="#section-10.1-3" class="pilcrow">¶</a></p>
+as described in Section 3.11 of {{!RFC8725}} and as required in [#command-token].<a href="#section-10.1-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>

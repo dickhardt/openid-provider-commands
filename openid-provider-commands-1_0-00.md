@@ -59,9 +59,9 @@ OpenID Provider Commands complements OpenID Connect by introducing a set of comm
 > No. These standards are deployed by organizations that have complex requirements, and these standards meet there needs. Most OP / RPs do not deploy any of these standards, as the implementation complexity is not warranted. OP Commands are designed to build on OpenID Connect, allowing RPs using OpenID Connect an easy path to offer OPs a standard API for security and lifecycle operations. 
 >
 
-OpenID Connect 1.0 (OIDC) is a widely adopted identity protocol that enables client applications, known as relying parties (RPs), to verify the identity of end-users based on authentication performed by a trusted service, the OpenID Provider (OP). OIDC also provides mechanisms for securely obtaining identity attributes, or claims, about the end-user, which helps RPs tailor experiences and manage access with confidence.
+OpenID Connect 1.0 is a widely adopted identity protocol that enables client applications, known as relying parties (RPs), to verify the identity of end-users based on authentication performed by a trusted service, the OpenID Provider (OP). OpenID Connect also provides mechanisms for securely obtaining identity attributes, or claims, about the end-user, which helps RPs tailor experiences and manage access with confidence.
 
-OIDC not only allows an end-user to log in and authorize access to an RP but also facilitates creating an account with the RP. However, account creation is only the beginning of an account's lifecycle. Throughout the lifecycle, various actions may be required to ensure data integrity, security, and regulatory compliance.
+OpenID Connect not only allows an end-user to log in and authorize access to an RP but also facilitates creating an account with the RP. However, account creation is only the beginning of an account's lifecycle. Throughout the lifecycle, various actions may be required to ensure data integrity, security, and regulatory compliance.
 
 For example, many jurisdictions grant end-users the "right to be forgotten," enabling them to request the deletion of their accounts and associated data. When such requests arise, OPs may need to notify RPs to fully delete the end-user's account and remove all related data, respecting both regulatory obligations and end-user privacy preferences.
 
@@ -714,23 +714,7 @@ inclusion of a `nonce` Claim in a Command Token
 is prohibited to prevent its misuse as an ID Token.
 
 Another way to prevent cross-JWT confusion is to use explicit typing,
-as described in Section 3.11 of {{!RFC8725}}.
-One would explicitly type a Command Token by including a
-`typ` (type) Header Parameter with a value of
-`command+jwt`
-(which is registered in [Media Type Registration](#media-type-registration)).
-Note that the `application/` portion of the
-`application/command+jwt` media type name is omitted
-when used as a `typ` Header Parameter value,
-as described in the `typ` definition
-in Section 4.1.9 of {{!RFC7515}}.
-Including an explicit type in issued Command Tokens is a best practice.
-Note however, that requiring explicitly typed Command Tokens
-will break most existing deployments,
-as existing OPs and RPs are already commonly using untyped Command Tokens.
-However, requiring explicit typing would be a good idea
-for new deployment profiles where compatibility with existing deployments
-is not a consideration.
+as described in Section 3.11 of {{!RFC8725}} and as required in [#command-token]. 
 
 
 # Privacy Considerations
