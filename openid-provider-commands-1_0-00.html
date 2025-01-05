@@ -33,7 +33,7 @@
     wcwidth 0.2.13
     weasyprint 61.2
 -->
-<link href="/usr/src/app/tmp/4e888ac9-b786-4fd8-abb6-6c497bbbae11/openid-provider-commands-1_0-00.xml" rel="alternate" type="application/rfc+xml">
+<link href="/usr/src/app/tmp/5c085844-1019-4eb1-b787-6f34834169d5/openid-provider-commands-1_0-00.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
 <style type="text/css">/*
 
@@ -1486,7 +1486,7 @@ the use of <em>this fixed-width font</em>.<a href="#section-1.1-2" class="pilcro
             <p id="section-1.2-2.3.1"><strong>Commands URI</strong>: The URL at the RP where OPs post Command Tokens.<a href="#section-1.2-2.3.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-1.2-2.4">
-            <p id="section-1.2-2.4.1"><strong>Organization</strong>: A register of accounts belonging to one entity. If an OP supports multiple Organizations with the same <code>iss</code> claim, the OP MUST include the <code>org</code> claim in Commands to identify the Organization.<a href="#section-1.2-2.4.1" class="pilcrow">¶</a></p>
+            <p id="section-1.2-2.4.1"><strong>Organization</strong>: A register of accounts belonging to one entity. An OP may support one Organization, or multiple.<a href="#section-1.2-2.4.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 </section>
@@ -1512,10 +1512,11 @@ the use of <em>this fixed-width font</em>.<a href="#section-1.1-2" class="pilcro
         <h3 id="name-command-usage-overview">
 <a href="#section-1.4" class="section-number selfRef">1.4. </a><a href="#name-command-usage-overview" class="section-name selfRef">Command Usage Overview</a>
         </h3>
-<p id="section-1.4-1">An OP will typically send a <strong>describe</strong> Command at the start of the relationship with an RP relationship, and then periodically, to learn the other Commands an RP supports. If the OP represents multiple Organizations, the OP will send a <strong>describe</strong> command for each Organization. The OP may use the <strong>describe</strong> Command response to determine if the RP supports functionality required by the Organization before issuing ID Tokens or <strong>activate</strong> Commands to the RP.<a href="#section-1.4-1" class="pilcrow">¶</a></p>
+<p id="section-1.4-1">An OP will typically send a <strong>describe</strong> Command at the start of the relationship with an RP, and then periodically, to learn the other Commands an RP supports. If the OP represents multiple Organizations, the OP will send a <strong>describe</strong> command for each Organization. The OP may use the <strong>describe</strong> Command response to determine if the RP supports functionality required by the Organization before issuing ID Tokens or <strong>activate</strong> Commands to the RP.<a href="#section-1.4-1" class="pilcrow">¶</a></p>
 <p id="section-1.4-2">If the RP supports the <strong>groups</strong> Command, the OP will typically send the <strong>groups</strong> Command at the start of the Organization and RP relationship, and then whenever the groups change.<a href="#section-1.4-2" class="pilcrow">¶</a></p>
 <p id="section-1.4-3">If the RP supports any Lifecycle Commands, the OP will send supported Lifecycle Commands to synchronize the state of accounts at the RP with the state at the Organization. If the RP supports Lifecycle Commands, the RP should also support the <strong>audit</strong> Command. The OP will typically send an <strong>audit</strong> Command at the start of the Organization and RP relationship, and then periodically, to learn the state of the Organization's accounts at the RP and correct any drift between the account state at the Organization and the RP.<a href="#section-1.4-3" class="pilcrow">¶</a></p>
 <p id="section-1.4-4">If the RP supports the <strong>unauthorize</strong> Command, the OP will send the <strong>unauthorize</strong> Command if the OP suspects an account has been taken over by a malicious actor.<a href="#section-1.4-4" class="pilcrow">¶</a></p>
+<p id="section-1.4-5">A consumer OP typically will only support the <strong>describe</strong>, <strong>unauthorize</strong>, and <strong>suspend</strong> Commands.<a href="#section-1.4-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1641,8 +1642,9 @@ A JSON string. The command for the RP to execute. See <a href="#commands">Comman
 </li>
         <li class="normal" id="section-4-7.6">
           <p id="section-4-7.6.1"><strong>org</strong>
-REQUIRED for OPs that support multiple tenants for the same <code>iss</code>.
-The Organization the user belongs to. It is a JSON object containing:<a href="#section-4-7.6.1" class="pilcrow">¶</a></p>
+The Organization the user belongs to.
+MUST be provided by OPs that support multiple Organizations for the same <code>iss</code>. An OP that supports personal accounts in addition to Organization accounts MUST NOT include the <code>org</code> claim for personal accounts.
+It is a JSON object containing:<a href="#section-4-7.6.1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-4-7.6.2.1">
               <p id="section-4-7.6.2.1.1"><strong>id</strong>

@@ -96,7 +96,7 @@ This specification defines the following terms:
 
 - **Commands URI**: The URL at the RP where OPs post Command Tokens.
 
-- **Organization**: A register of accounts belonging to one entity. If an OP supports multiple Organizations with the same `iss` claim, the OP MUST include the `org` claim in Commands to identify the Organization.
+- **Organization**: A register of accounts belonging to one entity. An OP may support one Organization, or multiple.
 
 ## Protocol Overview
 
@@ -112,13 +112,15 @@ This specification defines a Command request containing a Command Token sent fro
 
 ## Command Usage Overview
 
-An OP will typically send a **describe** Command at the start of the relationship with an RP relationship, and then periodically, to learn the other Commands an RP supports. If the OP represents multiple Organizations, the OP will send a **describe** command for each Organization. The OP may use the **describe** Command response to determine if the RP supports functionality required by the Organization before issuing ID Tokens or **activate** Commands to the RP.
+An OP will typically send a **describe** Command at the start of the relationship with an RP, and then periodically, to learn the other Commands an RP supports. If the OP represents multiple Organizations, the OP will send a **describe** command for each Organization. The OP may use the **describe** Command response to determine if the RP supports functionality required by the Organization before issuing ID Tokens or **activate** Commands to the RP.
 
 If the RP supports the **groups** Command, the OP will typically send the **groups** Command at the start of the Organization and RP relationship, and then whenever the groups change.
 
 If the RP supports any Lifecycle Commands, the OP will send supported Lifecycle Commands to synchronize the state of accounts at the RP with the state at the Organization. If the RP supports Lifecycle Commands, the RP should also support the **audit** Command. The OP will typically send an **audit** Command at the start of the Organization and RP relationship, and then periodically, to learn the state of the Organization's accounts at the RP and correct any drift between the account state at the Organization and the RP.
 
 If the RP supports the **unauthorize** Command, the OP will send the **unauthorize** Command if the OP suspects an account has been taken over by a malicious actor.
+
+A consumer OP typically will only support the **describe**, **unauthorize**, and **suspend** Commands.
 
 # Command Request
 
@@ -220,8 +222,9 @@ The following Claims are used within the Command Token:
   A JSON string. The command for the RP to execute. See [Commands](#commands) for standard values defined in this document. Other specifications may define additional values.
 
 - **org**
-  REQUIRED for OPs that support multiple tenants for the same `iss`.
-  The Organization the user belongs to. It is a JSON object containing:
+  The Organization the user belongs to. 
+  MUST be provided by OPs that support multiple Organizations for the same `iss`. An OP that supports personal accounts in addition to Organization accounts MUST NOT include the `org` claim for personal accounts.
+  It is a JSON object containing:
     - **id** 
     REQUIRED.
     A JSON string that is a stable OP unique identifier for the Organization.
@@ -382,7 +385,7 @@ Following is a non-normative example of a **describe** response to the example r
 ```
 
 ## **groups** Command
-The OP sends this command to inform the RP of the complete set of possible **groups** claims the OP MAY include in ID and Command Tokens. 
+The OP sends this command to inform the RP of the complete set of possible **groups** claims the OP MAY include in ID and Command Tokens.
 
 The **groups** claim is REQUIRED.
 The **org** claim is REQUIRED when the command is sent from a multi-tenant OP.
