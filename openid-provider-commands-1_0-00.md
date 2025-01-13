@@ -46,7 +46,6 @@ OpenID Provider Commands complements OpenID Connect by introducing a set of Comm
 > The SCIM protocol is a general purpose protocol for a client to manage resources at a server. When the SCIM protocol is used between an IdP and an RP, the schema is defined by the RP. The resources managed are in the context of the RP Tenant in a multi-tenant RP. Any extensions to the schema are defined by the RP. This provided an interoperable protocol to manage RP resources. 
 > OpenID Provider Commands are an extension of a user Account created by OpenID Connect. It uses the same identity Claims that the OP issues for the user. It uses the same token Claims, and is verified the same way. OpenID Provider Commands are issued in the context of the OP Tenant in a multi-tenant OP.
 >
-> SCIM is often used to ensure access to resources are in compliance with policies, a task OpenID Provider Commands are ill suited for where access to resources may be granted to Accounts not managed by the OP.
 > 
 >**2. How do Shared Signals / RISC compare to OpenID Provider Commands?**
 >

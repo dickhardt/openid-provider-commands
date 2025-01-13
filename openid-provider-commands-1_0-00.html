@@ -33,7 +33,7 @@
     wcwidth 0.2.13
     weasyprint 61.2
 -->
-<link href="/usr/src/app/tmp/417aec7e-ad63-47a6-874d-e5559fc1daa8/openid-provider-commands-1_0-00.xml" rel="alternate" type="application/rfc+xml">
+<link href="/usr/src/app/tmp/b307d42c-8bb9-496c-9350-84ed571d014f/openid-provider-commands-1_0-00.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
 <style type="text/css">/*
 
@@ -1463,17 +1463,16 @@ li > p:last-of-type:only-child {
 <p id="section-1-1.2"><strong>1. How does SCIM compare to OpenID Provider (OP) Commands?</strong><a href="#section-1-1.2" class="pilcrow">¶</a></p>
 <p id="section-1-1.3">The SCIM protocol is a general purpose protocol for a client to manage resources at a server. When the SCIM protocol is used between an IdP and an RP, the schema is defined by the RP. The resources managed are in the context of the RP Tenant in a multi-tenant RP. Any extensions to the schema are defined by the RP. This provided an interoperable protocol to manage RP resources.
 OpenID Provider Commands are an extension of a user Account created by OpenID Connect. It uses the same identity Claims that the OP issues for the user. It uses the same token Claims, and is verified the same way. OpenID Provider Commands are issued in the context of the OP Tenant in a multi-tenant OP.<a href="#section-1-1.3" class="pilcrow">¶</a></p>
-<p id="section-1-1.4">SCIM is often used to ensure access to resources are in compliance with policies, a task OpenID Provider Commands are ill suited for where access to resources may be granted to Accounts not managed by the OP.<a href="#section-1-1.4" class="pilcrow">¶</a></p>
-<p id="section-1-1.5"><strong>2. How do Shared Signals / RISC compare to OpenID Provider Commands?</strong><a href="#section-1-1.5" class="pilcrow">¶</a></p>
-<p id="section-1-1.6">Shared Signals and RISC are events that one party is sharing with another party. The actions a receiving party takes upon receiving a signal are intentionally not defined.
-The actions taken by the RP when receiving an OpenID Provider Command is specified. This gives an OP control over the Account at the RP.<a href="#section-1-1.6" class="pilcrow">¶</a></p>
-<p id="section-1-1.7"><strong>3. Are OpenID Provider Commands a replacement for SCIM, Shared Signals, or RISC?</strong><a href="#section-1-1.7" class="pilcrow">¶</a></p>
-<p id="section-1-1.8">No. These standards are deployed by organizations that have complex requirements, and these standards meet there needs. Most OP / RPs do not deploy any of these standards, as the implementation complexity is not warranted. OpenID Provider Commands are designed to build on OpenID Connect, allowing RPs using OpenID Connect an easy path to offer OPs a standard API for security and lifecycle operations.<a href="#section-1-1.8" class="pilcrow">¶</a></p>
-<p id="section-1-1.9"><strong>4. Why are there only groups? Why not roles and entitlements?</strong><a href="#section-1-1.9" class="pilcrow">¶</a></p>
-<p id="section-1-1.10">OpenID Provider Commands are used to project the Tenant data managed centrally by the OP. Groups are
+<p id="section-1-1.4"><strong>2. How do Shared Signals / RISC compare to OpenID Provider Commands?</strong><a href="#section-1-1.4" class="pilcrow">¶</a></p>
+<p id="section-1-1.5">Shared Signals and RISC are events that one party is sharing with another party. The actions a receiving party takes upon receiving a signal are intentionally not defined.
+The actions taken by the RP when receiving an OpenID Provider Command is specified. This gives an OP control over the Account at the RP.<a href="#section-1-1.5" class="pilcrow">¶</a></p>
+<p id="section-1-1.6"><strong>3. Are OpenID Provider Commands a replacement for SCIM, Shared Signals, or RISC?</strong><a href="#section-1-1.6" class="pilcrow">¶</a></p>
+<p id="section-1-1.7">No. These standards are deployed by organizations that have complex requirements, and these standards meet there needs. Most OP / RPs do not deploy any of these standards, as the implementation complexity is not warranted. OpenID Provider Commands are designed to build on OpenID Connect, allowing RPs using OpenID Connect an easy path to offer OPs a standard API for security and lifecycle operations.<a href="#section-1-1.7" class="pilcrow">¶</a></p>
+<p id="section-1-1.8"><strong>4. Why are there only groups? Why not roles and entitlements?</strong><a href="#section-1-1.8" class="pilcrow">¶</a></p>
+<p id="section-1-1.9">OpenID Provider Commands are used to project the Tenant data managed centrally by the OP. Groups are
 a common term used by OPs to manage a collection of Accounts. The terms roles and
 entitlements tend to be RP specific. Generally, groups from the OP will be mapped to
-roles and/or entitlements that are RP specific, at the RP.<a href="#section-1-1.10" class="pilcrow">¶</a></p>
+roles and/or entitlements that are RP specific, at the RP.<a href="#section-1-1.9" class="pilcrow">¶</a></p>
 </blockquote>
 <p id="section-1-2">OpenID Connect 1.0 is a widely adopted identity protocol that enables client applications, known as relying parties (RPs), to verify the identity of end-users based on authentication performed by a trusted service, the OpenID Provider (OP). OpenID Connect also provides mechanisms for securely obtaining identity attributes, or Claims, about the end-user, which helps RPs tailor experiences and manage access with confidence.<a href="#section-1-2" class="pilcrow">¶</a></p>
 <p id="section-1-3">OpenID Connect not only allows an end-user to log in and authorize access to resources at an RP but may also be
