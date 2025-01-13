@@ -34,6 +34,16 @@ OpenID Connect defines a protocol for an end-user to use an OpenID Provider (OP)
 
 OpenID Provider Commands complements OpenID Connect by introducing a set of Commands for an OP to directly manage an end-user Account at an RP. These Commands enable an OP to activate, maintain, suspend, reactivate, archive, restore, delete, and unauthorize an end-user Account. Command Tokens build on the OpenID Connect ID Token schema and verification, simplifying adoption by RPs.
 
+> Note by Rohan
+> Establish relationship -- OpenID Provider Commands => Command tokens
+> "OpenID Provider Commands complements OpenID Connect by introducing ..."
+> "Command tokens simplify RP adoption ..."
+
+> Note by Rohan
+> Aren't these two sentences conveying almost the same thing?
+> Command tokens simplify RP adoption by re-use of the OpenID Connect ID Token schema, security, and verification mechanisms.
+> Command tokens build on the OpenID Connect ID Token schema and verification, simplifying adoption by RPs.
+
 {mainmatter}
 
 # Introduction
@@ -250,6 +260,9 @@ The following Claim MUST NOT be used within the Command Token:
   A `nonce` Claim MUST NOT be present.
   Its use is prohibited to prevent misuse of the Command Token. See [Cross-JWT Confusion](#cross-jwt-confusion) for details.
 
+> Note by Rohan
+> How does including a nonce prevent misuse of the Command Token?
+> Point or add reference to [Cross-JWT Confusion](#cross-jwt-confusion)
 
 A Command Token MUST be signed.
 The same keys an OP uses to sign ID Tokens are used to sign Command Tokens, allowing key discovery using the same mechanism used for ID Tokens.
