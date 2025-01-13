@@ -184,6 +184,10 @@ to trigger different runtime behaviors.
 
 If there was a problem with the syntax of the Command request, or the Command Token was invalid, the RP MUST return an HTTP 400 Bad Request and include the `error` parameter with a value of `invalid_request`. 
 
+## Unrecognized Provider Error
+
+If the RP does not recognize the OP identified by the `iss` value in the Command token, the RP MUST return an HTTP 401 Unauthorized response and include the `error` parameter with the value of `unrecognized_provider`.
+
 ## Unsupported Command Error
 
 If the RP does not support the Command requested, the RP MUST return an HTTP 400 Bad Request and include the `error` parameter with the value of `unsupported_command`.
@@ -670,6 +674,8 @@ event: account-state
 data: {
   "sub": "248289761001",
   "email": "janes.smith@example.com",
+  "given_name": "Jane",
+  "family_name": "Smith",  
   "groups": [
     "b0f4861d-f3d6-4f76-be2f-e467daddc6f6",
     "88799417-c72f-48fc-9e63-f012d8822ad1"
@@ -682,6 +688,8 @@ event: account-state
 data: {
   "sub": "98765412345",
   "email": "john.doe@example.com",
+  "given_name": "John",
+  "family_name": "Doe",
   "groups": [
     "88799417-c72f-48fc-9e63-f012d8822ad1"
   ],
@@ -719,12 +727,6 @@ Sent in a Streaming Request and identified by the `audit_tenant` value in the `c
 
 The OP sends the Audit Tenant Command to learn the state of Accounts for a Tenant at an RP. 
 
-The Audit Tenant Command SHOULD contain the following Claim:
-
-- **audit_claims**
-  OPTIONAL. 
-  A JSON array of Claims the OP would like to receive for each Account in the Command Response.
-
 The following is a non-normative example of the Claims Set in the Command Token of an Audit Tenant Command:
 
 ```json
@@ -735,12 +737,7 @@ The following is a non-normative example of the Claims Set in the Command Token 
   "exp": 1734003060,
   "jti": "bWJz",
   "command": "audit_tenant",
-  "tenant": "ff6e7c9",
-  "audit_claims":[
-    "sub",
-    "email",
-    "groups"
-    ],
+  "tenant": "ff6e7c9"
 }
 ```
 
@@ -749,8 +746,7 @@ The following is a non-normative example of the Claims Set in the Command Token 
 
 The RP sends a Streaming Response if it received a valid Suspend Tenant Command.
 
-The RP MUST include any Claims it has for an Account JSON string in the `data` parameter that were requested in the `audit_claims` claim in the Audit Tenant Request.
-
+The RP MUST include any Claims for an Account that the RP has retained that were provided by the OP in the event `data` parameter JSON string. If the Claim values have been modified at the RP, the modified values should be returned. 
 
 ## Suspend Tenant Command
 
@@ -869,6 +865,42 @@ as described in Section 3.11 of {{!RFC8725}} and as required in [#command-token]
 # IANA Considerations
 
 *Not all entries have been added.*
+
+## JSON Web Token Claims
+
+This specification registers the following JSON web token claim definitions
+in the IANA "JSON Web Token Claims" registry
+[IANA JSON Web Token Claims](#IANA.JSON.Web.Token.Claims)
+established by [RFC7519](#RFC7519).
+
+### Registry Contents
+
+- **Claim Name:** `command`
+
+**Claim Description:**
+  An instruction from the `iss` to the `aud` of a token.
+
+**Change Controller:** OpenID Foundation
+
+**Specification Document(s):** This document
+
+- **Claim Name:** `tenant`
+
+**Claim Description:**
+  A logically isolated entity within the party identified by the `iss` of the token.
+  
+**Change Controller:** OpenID Foundation
+
+**Specification Document(s):** This document
+
+- **Claim Name:** `metadata`
+
+**Claim Description:**
+  Metadata about the party identified by the `iss` of the token.
+  
+**Change Controller:** OpenID Foundation
+
+**Specification Document(s):** This document
 
 
 ## OAuth Dynamic Client Registration Metadata Registration

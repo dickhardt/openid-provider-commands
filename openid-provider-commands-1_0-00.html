@@ -34,7 +34,7 @@
     wcwidth 0.2.13
     weasyprint 61.2
 -->
-<link href="/usr/src/app/tmp/70b8c170-5da7-471f-932f-b541198560de/openid-provider-commands-1_0-00.xml" rel="alternate" type="application/rfc+xml">
+<link href="/usr/src/app/tmp/3df55f08-ba28-403b-9720-f4fa1c3f5bdc/openid-provider-commands-1_0-00.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
 <style type="text/css">/*
 
@@ -1232,7 +1232,7 @@ li > p:last-of-type:only-child {
 <dd class="workgroup">OpenID Connect</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2025-01-11" class="published">11 January 2025</time>
+<time datetime="2025-01-13" class="published">13 January 2025</time>
     </dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
@@ -1287,10 +1287,13 @@ li > p:last-of-type:only-child {
                 <p id="section-toc.1-1.3.2.1.1"><a href="#section-3.1" class="auto internal xref">3.1</a>.  <a href="#name-invalid-request-error" class="internal xref">Invalid Request Error</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.2">
-                <p id="section-toc.1-1.3.2.2.1"><a href="#section-3.2" class="auto internal xref">3.2</a>.  <a href="#name-unsupported-command-error" class="internal xref">Unsupported Command Error</a></p>
+                <p id="section-toc.1-1.3.2.2.1"><a href="#section-3.2" class="auto internal xref">3.2</a>.  <a href="#name-unrecognized-provider-error" class="internal xref">Unrecognized Provider Error</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.3">
-                <p id="section-toc.1-1.3.2.3.1"><a href="#section-3.3" class="auto internal xref">3.3</a>.  <a href="#name-server-error" class="internal xref">Server Error</a></p>
+                <p id="section-toc.1-1.3.2.3.1"><a href="#section-3.3" class="auto internal xref">3.3</a>.  <a href="#name-unsupported-command-error" class="internal xref">Unsupported Command Error</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.4">
+                <p id="section-toc.1-1.3.2.4.1"><a href="#section-3.4" class="auto internal xref">3.4</a>.  <a href="#name-server-error" class="internal xref">Server Error</a></p>
 </li>
             </ul>
 </li>
@@ -1408,7 +1411,7 @@ li > p:last-of-type:only-child {
             <p id="section-toc.1-1.12.1"><a href="#section-12" class="auto internal xref">12</a>. <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12.2.1">
-                <p id="section-toc.1-1.12.2.1.1"><a href="#section-12.1" class="auto internal xref">12.1</a>.  <a href="#name-oauth-dynamic-client-regist" class="internal xref">OAuth Dynamic Client Registration Metadata Registration</a></p>
+                <p id="section-toc.1-1.12.2.1.1"><a href="#section-12.1" class="auto internal xref">12.1</a>.  <a href="#name-json-web-token-claims" class="internal xref">JSON Web Token Claims</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12.2.1.2.1">
                     <p id="section-toc.1-1.12.2.1.2.1.1"><a href="#section-12.1.1" class="auto internal xref">12.1.1</a>.  <a href="#name-registry-contents" class="internal xref">Registry Contents</a></p>
@@ -1416,7 +1419,15 @@ li > p:last-of-type:only-child {
                 </ul>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12.2.2">
-                <p id="section-toc.1-1.12.2.2.1"><a href="#section-12.2" class="auto internal xref">12.2</a>.  <a href="#name-media-type-registration" class="internal xref">Media Type Registration</a></p>
+                <p id="section-toc.1-1.12.2.2.1"><a href="#section-12.2" class="auto internal xref">12.2</a>.  <a href="#name-oauth-dynamic-client-regist" class="internal xref">OAuth Dynamic Client Registration Metadata Registration</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12.2.2.2.1">
+                    <p id="section-toc.1-1.12.2.2.2.1.1"><a href="#section-12.2.1" class="auto internal xref">12.2.1</a>.  <a href="#name-registry-contents-2" class="internal xref">Registry Contents</a></p>
+</li>
+                </ul>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12.2.3">
+                <p id="section-toc.1-1.12.2.3.1"><a href="#section-12.3" class="auto internal xref">12.3</a>.  <a href="#name-media-type-registration" class="internal xref">Media Type Registration</a></p>
 </li>
             </ul>
 </li>
@@ -1597,21 +1608,29 @@ to trigger different runtime behaviors.<a href="#section-3-5" class="pilcrow">¶
 <p id="section-3.1-1">If there was a problem with the syntax of the Command request, or the Command Token was invalid, the RP MUST return an HTTP 400 Bad Request and include the <code>error</code> parameter with a value of <code>invalid_request</code>.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="unsupported-command-error">
+<div id="unrecognized-provider-error">
 <section id="section-3.2">
-        <h3 id="name-unsupported-command-error">
-<a href="#section-3.2" class="section-number selfRef">3.2. </a><a href="#name-unsupported-command-error" class="section-name selfRef">Unsupported Command Error</a>
+        <h3 id="name-unrecognized-provider-error">
+<a href="#section-3.2" class="section-number selfRef">3.2. </a><a href="#name-unrecognized-provider-error" class="section-name selfRef">Unrecognized Provider Error</a>
         </h3>
-<p id="section-3.2-1">If the RP does not support the Command requested, the RP MUST return an HTTP 400 Bad Request and include the <code>error</code> parameter with the value of <code>unsupported_command</code>.<a href="#section-3.2-1" class="pilcrow">¶</a></p>
-<p id="section-3.2-2">Note that the RP may support Commands for some OPs, and not others, and for some Tenants, and not others.<a href="#section-3.2-2" class="pilcrow">¶</a></p>
+<p id="section-3.2-1">If the RP does not recognize the OP identified by the <code>iss</code> value in the Command token, the RP MUST return an HTTP 401 Unauthorized response and include the <code>error</code> parameter with the value of <code>unrecognized_provider</code>.<a href="#section-3.2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="unsupported-command-error">
+<section id="section-3.3">
+        <h3 id="name-unsupported-command-error">
+<a href="#section-3.3" class="section-number selfRef">3.3. </a><a href="#name-unsupported-command-error" class="section-name selfRef">Unsupported Command Error</a>
+        </h3>
+<p id="section-3.3-1">If the RP does not support the Command requested, the RP MUST return an HTTP 400 Bad Request and include the <code>error</code> parameter with the value of <code>unsupported_command</code>.<a href="#section-3.3-1" class="pilcrow">¶</a></p>
+<p id="section-3.3-2">Note that the RP may support Commands for some OPs, and not others, and for some Tenants, and not others.<a href="#section-3.3-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="server-error">
-<section id="section-3.3">
+<section id="section-3.4">
         <h3 id="name-server-error">
-<a href="#section-3.3" class="section-number selfRef">3.3. </a><a href="#name-server-error" class="section-name selfRef">Server Error</a>
+<a href="#section-3.4" class="section-number selfRef">3.4. </a><a href="#name-server-error" class="section-name selfRef">Server Error</a>
         </h3>
-<p id="section-3.3-1">If the RP is unable to process a valid request, the RP MUST respond with a 5xx Server Error status code as defined in RFC 9110 section 15.6.<a href="#section-3.3-1" class="pilcrow">¶</a></p>
+<p id="section-3.4-1">If the RP is unable to process a valid request, the RP MUST respond with a 5xx Server Error status code as defined in RFC 9110 section 15.6.<a href="#section-3.4-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -2171,6 +2190,8 @@ event: account-state
 data: {
   "sub": "248289761001",
   "email": "janes.smith@example.com",
+  "given_name": "Jane",
+  "family_name": "Smith",
   "groups": [
     "b0f4861d-f3d6-4f76-be2f-e467daddc6f6",
     "88799417-c72f-48fc-9e63-f012d8822ad1"
@@ -2183,6 +2204,8 @@ event: account-state
 data: {
   "sub": "98765412345",
   "email": "john.doe@example.com",
+  "given_name": "John",
+  "family_name": "Doe",
   "groups": [
     "88799417-c72f-48fc-9e63-f012d8822ad1"
   ],
@@ -2220,16 +2243,8 @@ command_token=eyJhbGci ... .eyJpc3Mi ... .T3BlbklE ...
         </h3>
 <p id="section-6.5-1">Sent in a Streaming Request and identified by the <code>audit_tenant</code> value in the <code>command</code> Claim in a Command Token.<a href="#section-6.5-1" class="pilcrow">¶</a></p>
 <p id="section-6.5-2">The OP sends the Audit Tenant Command to learn the state of Accounts for a Tenant at an RP.<a href="#section-6.5-2" class="pilcrow">¶</a></p>
-<p id="section-6.5-3">The Audit Tenant Command SHOULD contain the following Claim:<a href="#section-6.5-3" class="pilcrow">¶</a></p>
-<ul class="compact">
-<li class="compact" id="section-6.5-4.1">
-            <strong>audit_claims</strong>
-OPTIONAL.
-A JSON array of Claims the OP would like to receive for each Account in the Command Response.<a href="#section-6.5-4.1" class="pilcrow">¶</a>
-</li>
-        </ul>
-<p id="section-6.5-5">The following is a non-normative example of the Claims Set in the Command Token of an Audit Tenant Command:<a href="#section-6.5-5" class="pilcrow">¶</a></p>
-<div class="lang-json sourcecode" id="section-6.5-6">
+<p id="section-6.5-3">The following is a non-normative example of the Claims Set in the Command Token of an Audit Tenant Command:<a href="#section-6.5-3" class="pilcrow">¶</a></p>
+<div class="lang-json sourcecode" id="section-6.5-4">
 <pre>{
   "iss": "https://op.example.org",
   "aud": "s6BhdRkqt3",
@@ -2237,14 +2252,9 @@ A JSON array of Claims the OP would like to receive for each Account in the Comm
   "exp": 1734003060,
   "jti": "bWJz",
   "command": "audit_tenant",
-  "tenant": "ff6e7c9",
-  "audit_claims":[
-    "sub",
-    "email",
-    "groups"
-    ],
+  "tenant": "ff6e7c9"
 }
-</pre><a href="#section-6.5-6" class="pilcrow">¶</a>
+</pre><a href="#section-6.5-4" class="pilcrow">¶</a>
 </div>
 </section>
 </div>
@@ -2254,7 +2264,7 @@ A JSON array of Claims the OP would like to receive for each Account in the Comm
 <a href="#section-6.6" class="section-number selfRef">6.6. </a><a href="#name-audit-tenant-response" class="section-name selfRef">Audit Tenant Response</a>
         </h3>
 <p id="section-6.6-1">The RP sends a Streaming Response if it received a valid Suspend Tenant Command.<a href="#section-6.6-1" class="pilcrow">¶</a></p>
-<p id="section-6.6-2">The RP MUST include any Claims it has for an Account JSON string in the <code>data</code> parameter that were requested in the <code>audit_claims</code> claim in the Audit Tenant Request.<a href="#section-6.6-2" class="pilcrow">¶</a></p>
+<p id="section-6.6-2">The RP MUST include any Claims for an Account that the RP has retained that were provided by the OP in the event <code>data</code> parameter JSON string. If the Claim values have been modified at the RP, the modified values should be returned.<a href="#section-6.6-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="suspend-tenant-command">
@@ -2419,15 +2429,15 @@ as described in Section 3.11 of {{!RFC8725}} and as required in [#command-token]
 <a href="#section-12" class="section-number selfRef">12. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
       </h2>
 <p id="section-12-1"><em>Not all entries have been added.</em><a href="#section-12-1" class="pilcrow">¶</a></p>
-<div id="oauth-dynamic-client-registration-metadata-registration">
+<div id="json-web-token-claims">
 <section id="section-12.1">
-        <h3 id="name-oauth-dynamic-client-regist">
-<a href="#section-12.1" class="section-number selfRef">12.1. </a><a href="#name-oauth-dynamic-client-regist" class="section-name selfRef">OAuth Dynamic Client Registration Metadata Registration</a>
+        <h3 id="name-json-web-token-claims">
+<a href="#section-12.1" class="section-number selfRef">12.1. </a><a href="#name-json-web-token-claims" class="section-name selfRef">JSON Web Token Claims</a>
         </h3>
-<p id="section-12.1-1">This specification registers the following client metadata definitions
-in the IANA "OAuth Dynamic Client Registration Metadata" registry
-<a href="#IANA.OAuth.Parameters">IANA OAuth Parameters</a>
-established by <a href="#RFC7591">RFC7591</a>.<a href="#section-12.1-1" class="pilcrow">¶</a></p>
+<p id="section-12.1-1">This specification registers the following JSON web token claim definitions
+in the IANA "JSON Web Token Claims" registry
+<a href="#IANA.JSON.Web.Token.Claims">IANA JSON Web Token Claims</a>
+established by <a href="#RFC7519">RFC7519</a>.<a href="#section-12.1-1" class="pilcrow">¶</a></p>
 <div id="registry-contents">
 <section id="section-12.1.1">
           <h4 id="name-registry-contents">
@@ -2435,24 +2445,69 @@ established by <a href="#RFC7591">RFC7591</a>.<a href="#section-12.1-1" class="p
           </h4>
 <ul class="compact">
 <li class="compact" id="section-12.1.1-1.1">
-              <strong>Client Metadata Name:</strong> <code>commands_uri</code><a href="#section-12.1.1-1.1" class="pilcrow">¶</a>
+              <strong>Claim Name:</strong> <code>command</code><a href="#section-12.1.1-1.1" class="pilcrow">¶</a>
 </li>
           </ul>
-<p id="section-12.1.1-2"><strong>Client Metadata Description:</strong>
-  RP URL that will receive OpenID Provider Commands from the OP<a href="#section-12.1.1-2" class="pilcrow">¶</a></p>
+<p id="section-12.1.1-2"><strong>Claim Description:</strong>
+  An instruction from the <code>iss</code> to the <code>aud</code> of a token.<a href="#section-12.1.1-2" class="pilcrow">¶</a></p>
 <p id="section-12.1.1-3"><strong>Change Controller:</strong> OpenID Foundation<a href="#section-12.1.1-3" class="pilcrow">¶</a></p>
 <p id="section-12.1.1-4"><strong>Specification Document(s):</strong> This document<a href="#section-12.1.1-4" class="pilcrow">¶</a></p>
+<ul class="compact">
+<li class="compact" id="section-12.1.1-5.1">
+              <strong>Claim Name:</strong> <code>tenant</code><a href="#section-12.1.1-5.1" class="pilcrow">¶</a>
+</li>
+          </ul>
+<p id="section-12.1.1-6"><strong>Claim Description:</strong>
+  A logically isolated entity within the party identified by the <code>iss</code> of the token.<a href="#section-12.1.1-6" class="pilcrow">¶</a></p>
+<p id="section-12.1.1-7"><strong>Change Controller:</strong> OpenID Foundation<a href="#section-12.1.1-7" class="pilcrow">¶</a></p>
+<p id="section-12.1.1-8"><strong>Specification Document(s):</strong> This document<a href="#section-12.1.1-8" class="pilcrow">¶</a></p>
+<ul class="compact">
+<li class="compact" id="section-12.1.1-9.1">
+              <strong>Claim Name:</strong> <code>metadata</code><a href="#section-12.1.1-9.1" class="pilcrow">¶</a>
+</li>
+          </ul>
+<p id="section-12.1.1-10"><strong>Claim Description:</strong>
+  Metadata about the party identified by the <code>iss</code> of the token.<a href="#section-12.1.1-10" class="pilcrow">¶</a></p>
+<p id="section-12.1.1-11"><strong>Change Controller:</strong> OpenID Foundation<a href="#section-12.1.1-11" class="pilcrow">¶</a></p>
+<p id="section-12.1.1-12"><strong>Specification Document(s):</strong> This document<a href="#section-12.1.1-12" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="oauth-dynamic-client-registration-metadata-registration">
+<section id="section-12.2">
+        <h3 id="name-oauth-dynamic-client-regist">
+<a href="#section-12.2" class="section-number selfRef">12.2. </a><a href="#name-oauth-dynamic-client-regist" class="section-name selfRef">OAuth Dynamic Client Registration Metadata Registration</a>
+        </h3>
+<p id="section-12.2-1">This specification registers the following client metadata definitions
+in the IANA "OAuth Dynamic Client Registration Metadata" registry
+<a href="#IANA.OAuth.Parameters">IANA OAuth Parameters</a>
+established by <a href="#RFC7591">RFC7591</a>.<a href="#section-12.2-1" class="pilcrow">¶</a></p>
+<div id="registry-contents-1">
+<section id="section-12.2.1">
+          <h4 id="name-registry-contents-2">
+<a href="#section-12.2.1" class="section-number selfRef">12.2.1. </a><a href="#name-registry-contents-2" class="section-name selfRef">Registry Contents</a>
+          </h4>
+<ul class="compact">
+<li class="compact" id="section-12.2.1-1.1">
+              <strong>Client Metadata Name:</strong> <code>commands_uri</code><a href="#section-12.2.1-1.1" class="pilcrow">¶</a>
+</li>
+          </ul>
+<p id="section-12.2.1-2"><strong>Client Metadata Description:</strong>
+  RP URL that will receive OpenID Provider Commands from the OP<a href="#section-12.2.1-2" class="pilcrow">¶</a></p>
+<p id="section-12.2.1-3"><strong>Change Controller:</strong> OpenID Foundation<a href="#section-12.2.1-3" class="pilcrow">¶</a></p>
+<p id="section-12.2.1-4"><strong>Specification Document(s):</strong> This document<a href="#section-12.2.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
 </div>
 <div id="media-type-registration">
-<section id="section-12.2">
+<section id="section-12.3">
         <h3 id="name-media-type-registration">
-<a href="#section-12.2" class="section-number selfRef">12.2. </a><a href="#name-media-type-registration" class="section-name selfRef">Media Type Registration</a>
+<a href="#section-12.3" class="section-number selfRef">12.3. </a><a href="#name-media-type-registration" class="section-name selfRef">Media Type Registration</a>
         </h3>
-<p id="section-12.2-1">This specification registers the <code>application/command+jwt</code> media type as per {{!RFC6838}}.<a href="#section-12.2-1" class="pilcrow">¶</a></p>
-<p id="section-12.2-2"><em>To be completed.</em><a href="#section-12.2-2" class="pilcrow">¶</a></p>
+<p id="section-12.3-1">This specification registers the <code>application/command+jwt</code> media type as per {{!RFC6838}}.<a href="#section-12.3-1" class="pilcrow">¶</a></p>
+<p id="section-12.3-2"><em>To be completed.</em><a href="#section-12.3-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
