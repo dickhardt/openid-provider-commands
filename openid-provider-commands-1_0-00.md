@@ -55,7 +55,7 @@ OpenID Provider Commands complements OpenID Connect by introducing a set of Comm
 > 
 >**3. Are OpenID Provider Commands a replacement for SCIM, Shared Signals, or RISC?**
 >
-> No. These standards are deployed by organizations that have complex requirements, and these standards meet there needs. Most OP / RPs do not deploy any of these standards, as the implementation complexity is not warranted. OpenID Provider Commands are designed to build on OpenID Connect, allowing RPs using OpenID Connect an easy path to offer OPs a standard API for security and lifecycle operations. 
+> No. These standards are deployed by organizations that have complex requirements, and these standards meet their needs. Most OP / RPs do not deploy any of these standards, as the implementation complexity is not warranted. OpenID Provider Commands are designed to build on OpenID Connect, allowing RPs using OpenID Connect an easy path to offer OPs a standard API for security and lifecycle operations. 
 >
 >**4. Why are there only groups? Why not roles and entitlements?**
 >
